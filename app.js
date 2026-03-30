@@ -759,6 +759,38 @@ function showFlashcard() {
     document.getElementById('cardExample').textContent = w.example ? `"${w.example.replace('_', '___')}"` : '';
     document.getElementById('cardSynonym').textContent = w.synonyms && w.synonyms.length ? `Synonyms: ${w.synonyms.join(', ')}` : '';
     document.getElementById('cardCounter').textContent = `${currentFlashcardIndex + 1} / ${flashcardDeck.length}`;
+    renderDeckList();
+}
+
+function renderDeckList() {
+    const container = document.getElementById('deckWordList');
+    const countEl = document.getElementById('deckListCount');
+    if (!container) return;
+
+    countEl.textContent = `${flashcardDeck.length} words`;
+
+    if (flashcardDeck.length === 0) {
+        container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-light)">No words match filters</div>';
+        return;
+    }
+
+    const sorted = [...flashcardDeck].sort((a, b) => a.word.localeCompare(b.word));
+    container.innerHTML = sorted.map(w => {
+        const isCurrent = flashcardDeck[currentFlashcardIndex] && w.id === flashcardDeck[currentFlashcardIndex].id;
+        return `<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:var(--radius-xs);cursor:pointer;font-size:13px;${isCurrent ? 'background:var(--accent-bg);border-left:3px solid var(--accent)' : 'border-left:3px solid transparent'}" onclick="jumpToFlashcard(${w.id})">
+            <span style="font-weight:700;min-width:100px;color:${isCurrent ? 'var(--accent)' : 'var(--text)'}">${w.word}</span>
+            <span style="color:var(--text-secondary);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${w.definition}</span>
+            <span class="word-level-badge badge-${w.level}" style="font-size:10px;padding:2px 8px">${w.level}</span>
+        </div>`;
+    }).join('');
+}
+
+function jumpToFlashcard(id) {
+    const idx = flashcardDeck.findIndex(w => w.id === id);
+    if (idx !== -1) {
+        currentFlashcardIndex = idx;
+        showFlashcard();
+    }
 }
 
 function flipCard() {
