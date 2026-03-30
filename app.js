@@ -733,7 +733,13 @@ document.addEventListener('fullscreenchange', () => {
 
 function showFlashcard() {
     const card = document.getElementById('flashcard');
+    const inner = card.querySelector('.flashcard-inner');
+    // Disable animation when switching cards, re-enable for manual flip
+    inner.style.transition = 'none';
     card.classList.remove('flipped');
+    // Force reflow then restore transition
+    inner.offsetHeight;
+    inner.style.transition = '';
 
     if (flashcardDeck.length === 0) {
         document.getElementById('cardWord').textContent = 'No words';
