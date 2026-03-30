@@ -147,6 +147,7 @@ function setupFilters() {
     document.getElementById('searchWords').addEventListener('input', renderWordList);
     document.getElementById('wordlistLevel').addEventListener('change', renderWordList);
     document.getElementById('wordlistStatus').addEventListener('change', renderWordList);
+    document.getElementById('wordlistSort').addEventListener('change', renderWordList);
     document.getElementById('globalLevelFilter').addEventListener('change', () => {
         renderWordList();
         setupFlashcards();
@@ -170,6 +171,8 @@ function renderWordList() {
     const status = document.getElementById('wordlistStatus').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
 
+    const sort = document.getElementById('wordlistSort').value;
+
     let filtered = words.filter(w => {
         if (search && !w.word.toLowerCase().includes(search) && !w.definition.toLowerCase().includes(search)) return false;
         if (level !== 'all' && w.level !== level) return false;
@@ -177,6 +180,17 @@ function renderWordList() {
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
         return true;
     });
+
+    if (sort === 'az') {
+        filtered.sort((a, b) => a.word.localeCompare(b.word));
+    } else if (sort === 'za') {
+        filtered.sort((a, b) => b.word.localeCompare(a.word));
+    } else if (sort === 'level') {
+        const order = { beginner: 0, intermediate: 1, advanced: 2, expert: 3 };
+        filtered.sort((a, b) => order[a.level] - order[b.level] || a.word.localeCompare(b.word));
+    } else if (sort === 'score') {
+        filtered.sort((a, b) => (b.score || 0) - (a.score || 0));
+    }
 
     const container = document.getElementById('wordlistContainer');
 
