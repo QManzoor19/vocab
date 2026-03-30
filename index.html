@@ -78,100 +78,416 @@
         <main id="content">
             <!-- Dashboard Page -->
             <section id="page-dashboard" class="page active">
-                <div class="page-header">
-                    <h1>Dashboard</h1>
-                    <p class="page-subtitle">Track your vocabulary progress</p>
+                <style>
+                    /* Dashboard compact stats bar */
+                    .dash-stats-bar {
+                        display: flex;
+                        gap: 8px;
+                        padding: 10px 12px;
+                        background: var(--card-bg);
+                        border-radius: var(--radius-sm);
+                        border: 1px solid var(--card-border);
+                        margin-bottom: 12px;
+                        flex-shrink: 0;
+                    }
+                    .dash-stat-item {
+                        flex: 1;
+                        text-align: center;
+                        padding: 4px 0;
+                    }
+                    .dash-stat-item:not(:last-child) {
+                        border-right: 1px solid var(--card-border);
+                    }
+                    .dash-stat-num {
+                        font-size: 22px;
+                        font-weight: 900;
+                        line-height: 1.1;
+                        letter-spacing: -0.5px;
+                    }
+                    .dash-stat-label {
+                        font-size: 10px;
+                        color: var(--text-secondary);
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        margin-top: 2px;
+                    }
+                    .dash-stat-item:nth-child(1) .dash-stat-num { color: var(--stat-1); }
+                    .dash-stat-item:nth-child(2) .dash-stat-num { color: var(--stat-2); }
+                    .dash-stat-item:nth-child(3) .dash-stat-num { color: var(--stat-3); }
+                    .dash-stat-item:nth-child(4) .dash-stat-num { color: var(--stat-4); }
+
+                    /* Filter button */
+                    .dash-filter-btn {
+                        position: fixed;
+                        bottom: 24px;
+                        right: 24px;
+                        z-index: 50;
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #79AE6F, #9FCB98);
+                        border: none;
+                        color: #2e2a1e;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: var(--shadow-lg);
+                        transition: transform 0.2s, box-shadow 0.2s;
+                    }
+                    .dash-filter-btn:hover {
+                        transform: scale(1.1);
+                        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+                    }
+                    .dash-filter-dropdown {
+                        position: fixed;
+                        bottom: 80px;
+                        right: 24px;
+                        z-index: 51;
+                        background: var(--card-bg);
+                        border: 1px solid var(--glass-border);
+                        border-radius: var(--radius-sm);
+                        padding: 8px 0;
+                        box-shadow: var(--shadow-lg);
+                        display: none;
+                        min-width: 160px;
+                    }
+                    .dash-filter-dropdown.open {
+                        display: block;
+                    }
+                    .dash-filter-option {
+                        display: block;
+                        width: 100%;
+                        padding: 10px 18px;
+                        background: none;
+                        border: none;
+                        color: var(--text);
+                        font-size: 14px;
+                        font-weight: 500;
+                        text-align: left;
+                        cursor: pointer;
+                        font-family: inherit;
+                        transition: background 0.15s;
+                    }
+                    .dash-filter-option:hover {
+                        background: var(--nav-hover-bg);
+                    }
+                    .dash-filter-option.active {
+                        color: var(--beginner);
+                        font-weight: 700;
+                    }
+
+                    /* Word card scroll container */
+                    .dash-card-scroll {
+                        flex: 1;
+                        overflow-y: auto;
+                        scroll-snap-type: y mandatory;
+                        -webkit-overflow-scrolling: touch;
+                        scroll-behavior: smooth;
+                    }
+                    .dash-card-scroll::-webkit-scrollbar {
+                        width: 4px;
+                    }
+                    .dash-card-scroll::-webkit-scrollbar-thumb {
+                        background: var(--glass-border);
+                        border-radius: 4px;
+                    }
+
+                    /* Individual word card */
+                    .dash-word-card {
+                        scroll-snap-align: start;
+                        min-height: calc(100vh - 200px);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 32px 20px;
+                        text-align: center;
+                    }
+                    .dash-word-card-inner {
+                        background: var(--glass);
+                        backdrop-filter: blur(16px);
+                        -webkit-backdrop-filter: blur(16px);
+                        border: 1px solid var(--glass-border);
+                        border-radius: var(--radius);
+                        padding: 40px 28px;
+                        max-width: 480px;
+                        width: 100%;
+                        box-shadow: var(--shadow-md);
+                        position: relative;
+                    }
+                    .dash-card-level-badge {
+                        display: inline-block;
+                        padding: 4px 12px;
+                        border-radius: 99px;
+                        font-size: 11px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                        margin-bottom: 16px;
+                    }
+                    .dash-card-level-badge.beginner { background: rgba(159,203,152,0.2); color: #9FCB98; }
+                    .dash-card-level-badge.intermediate { background: rgba(224,208,122,0.2); color: #e0d07a; }
+                    .dash-card-level-badge.advanced { background: rgba(224,136,106,0.2); color: #e0886a; }
+                    .dash-card-level-badge.expert { background: rgba(192,154,224,0.2); color: #c09ae0; }
+
+                    .dash-card-word {
+                        font-size: 36px;
+                        font-weight: 900;
+                        color: var(--text);
+                        letter-spacing: -1px;
+                        margin-bottom: 6px;
+                        line-height: 1.2;
+                        word-break: break-word;
+                    }
+                    .dash-card-pos {
+                        font-size: 13px;
+                        color: var(--text-light);
+                        font-style: italic;
+                        margin-bottom: 20px;
+                    }
+                    .dash-card-definition {
+                        font-size: 17px;
+                        color: var(--text-secondary);
+                        line-height: 1.5;
+                        margin-bottom: 20px;
+                    }
+                    .dash-card-example {
+                        font-size: 14px;
+                        color: var(--text-light);
+                        font-style: italic;
+                        line-height: 1.5;
+                        margin-bottom: 18px;
+                        padding: 12px 16px;
+                        background: rgba(0,0,0,0.15);
+                        border-radius: var(--radius-xs);
+                        border-left: 3px solid var(--glass-border);
+                    }
+                    .dash-card-synonyms {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 6px;
+                        justify-content: center;
+                        margin-bottom: 20px;
+                    }
+                    .dash-card-synonym-tag {
+                        padding: 4px 10px;
+                        border-radius: 99px;
+                        font-size: 12px;
+                        font-weight: 600;
+                        background: var(--accent-bg);
+                        color: var(--text-secondary);
+                        border: 1px solid var(--card-border);
+                    }
+                    .dash-card-speak-btn {
+                        width: 44px;
+                        height: 44px;
+                        border-radius: 50%;
+                        background: var(--accent-bg);
+                        border: 1px solid var(--card-border);
+                        color: var(--accent);
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto;
+                        transition: background 0.2s, transform 0.15s;
+                    }
+                    .dash-card-speak-btn:hover {
+                        background: rgba(242,237,194,0.18);
+                        transform: scale(1.1);
+                    }
+                    .dash-card-status {
+                        position: absolute;
+                        top: 16px;
+                        right: 16px;
+                        width: 10px;
+                        height: 10px;
+                        border-radius: 50%;
+                    }
+                    .dash-card-status.new { background: var(--text-light); }
+                    .dash-card-status.learning { background: var(--intermediate); }
+                    .dash-card-status.mastered { background: var(--beginner); }
+
+                    .dash-empty-msg {
+                        min-height: calc(100vh - 200px);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: var(--text-light);
+                        font-size: 16px;
+                        scroll-snap-align: start;
+                    }
+
+                    .dash-scroll-hint {
+                        text-align: center;
+                        padding: 8px;
+                        color: var(--text-light);
+                        font-size: 12px;
+                        flex-shrink: 0;
+                        opacity: 0.7;
+                    }
+
+                    /* Make dashboard page a flex column to fill available space */
+                    #page-dashboard.page.active {
+                        display: flex;
+                        flex-direction: column;
+                        height: calc(100vh - 80px);
+                        overflow: hidden;
+                        padding-bottom: 0;
+                    }
+
+                    @media (max-width: 600px) {
+                        .dash-stats-bar { gap: 4px; padding: 8px; }
+                        .dash-stat-num { font-size: 18px; }
+                        .dash-stat-label { font-size: 9px; }
+                        .dash-word-card { padding: 20px 12px; min-height: calc(100vh - 180px); }
+                        .dash-word-card-inner { padding: 28px 18px; }
+                        .dash-card-word { font-size: 28px; }
+                        .dash-card-definition { font-size: 15px; }
+                        .dash-filter-btn { bottom: 16px; right: 16px; }
+                        .dash-filter-dropdown { bottom: 72px; right: 16px; }
+                    }
+                </style>
+
+                <!-- Compact stats bar -->
+                <div class="dash-stats-bar">
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-num" id="totalWords">0</div>
+                        <div class="dash-stat-label">Total</div>
+                    </div>
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-num" id="masteredWords">0</div>
+                        <div class="dash-stat-label">Mastered</div>
+                    </div>
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-num" id="learningWords">0</div>
+                        <div class="dash-stat-label">Learning</div>
+                    </div>
+                    <div class="dash-stat-item">
+                        <div class="dash-stat-num" id="streakCount">0</div>
+                        <div class="dash-stat-label">Streak</div>
+                    </div>
                 </div>
-                <div class="stats-grid">
-                    <div class="stat-card stat-total">
-                        <div class="stat-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-number" id="totalWords">0</div>
-                            <div class="stat-label">Total Words</div>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-mastered">
-                        <div class="stat-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-number" id="masteredWords">0</div>
-                            <div class="stat-label">Mastered</div>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-learning">
-                        <div class="stat-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-number" id="learningWords">0</div>
-                            <div class="stat-label">Learning</div>
-                        </div>
-                    </div>
-                    <div class="stat-card stat-streak">
-                        <div class="stat-icon">
-                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        </div>
-                        <div class="stat-info">
-                            <div class="stat-number" id="streakCount">0</div>
-                            <div class="stat-label">Day Streak</div>
-                        </div>
-                    </div>
+
+                <!-- Scroll hint -->
+                <div class="dash-scroll-hint">Swipe up to browse words</div>
+
+                <!-- Scrollable word card container -->
+                <div class="dash-card-scroll" id="dashCardScroll">
+                    <!-- Cards rendered by JS -->
                 </div>
-                <div class="dashboard-grid">
-                    <div class="glass-card level-breakdown">
-                        <h2>Words by Level</h2>
-                        <div class="level-bars">
-                            <div class="level-bar-row">
-                                <span class="level-dot beginner-dot"></span>
-                                <span class="level-name">Beginner</span>
-                                <div class="level-bar"><div class="level-fill beginner" id="bar-beginner"></div></div>
-                                <span class="level-count" id="count-beginner">0</span>
-                            </div>
-                            <div class="level-bar-row">
-                                <span class="level-dot intermediate-dot"></span>
-                                <span class="level-name">Intermediate</span>
-                                <div class="level-bar"><div class="level-fill intermediate" id="bar-intermediate"></div></div>
-                                <span class="level-count" id="count-intermediate">0</span>
-                            </div>
-                            <div class="level-bar-row">
-                                <span class="level-dot advanced-dot"></span>
-                                <span class="level-name">Advanced</span>
-                                <div class="level-bar"><div class="level-fill advanced" id="bar-advanced"></div></div>
-                                <span class="level-count" id="count-advanced">0</span>
-                            </div>
-                            <div class="level-bar-row">
-                                <span class="level-dot expert-dot"></span>
-                                <span class="level-name">Expert</span>
-                                <div class="level-bar"><div class="level-fill expert" id="bar-expert"></div></div>
-                                <span class="level-count" id="count-expert">0</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="glass-card quick-actions">
-                        <h2>Quick Start</h2>
-                        <div class="action-buttons">
-                            <button class="action-btn action-flash" onclick="navigateTo('flashcards')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/></svg>
-                                Flashcards
-                            </button>
-                            <button class="action-btn action-practice" onclick="navigateTo('exercises')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg>
-                                Practice
-                            </button>
-                            <button class="action-btn action-add" onclick="navigateTo('addword')">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
-                                Add Word
-                            </button>
-                            <button class="action-btn action-export" onclick="showExportMenu()">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                                Export
-                            </button>
-                        </div>
-                    </div>
+
+                <!-- Filter FAB -->
+                <button class="dash-filter-btn" id="dashFilterBtn" onclick="toggleDashFilter()">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+                </button>
+                <div class="dash-filter-dropdown" id="dashFilterDropdown">
+                    <button class="dash-filter-option active" data-level="all" onclick="setDashFilter('all')">All Levels</button>
+                    <button class="dash-filter-option" data-level="beginner" onclick="setDashFilter('beginner')">Beginner</button>
+                    <button class="dash-filter-option" data-level="intermediate" onclick="setDashFilter('intermediate')">Intermediate</button>
+                    <button class="dash-filter-option" data-level="advanced" onclick="setDashFilter('advanced')">Advanced</button>
+                    <button class="dash-filter-option" data-level="expert" onclick="setDashFilter('expert')">Expert</button>
                 </div>
+
+                <script>
+                    let dashLevelFilter = 'all';
+
+                    function toggleDashFilter() {
+                        document.getElementById('dashFilterDropdown').classList.toggle('open');
+                    }
+
+                    function setDashFilter(level) {
+                        dashLevelFilter = level;
+                        document.querySelectorAll('.dash-filter-option').forEach(btn => {
+                            btn.classList.toggle('active', btn.dataset.level === level);
+                        });
+                        document.getElementById('dashFilterDropdown').classList.remove('open');
+                        renderDashCards();
+                    }
+
+                    // Close filter dropdown when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (!e.target.closest('#dashFilterBtn') && !e.target.closest('#dashFilterDropdown')) {
+                            document.getElementById('dashFilterDropdown').classList.remove('open');
+                        }
+                    });
+
+                    function speakWord(word) {
+                        if ('speechSynthesis' in window) {
+                            window.speechSynthesis.cancel();
+                            const utterance = new SpeechSynthesisUtterance(word);
+                            utterance.rate = 0.85;
+                            utterance.pitch = 1;
+                            window.speechSynthesis.speak(utterance);
+                        }
+                    }
+
+                    function renderDashCards() {
+                        const container = document.getElementById('dashCardScroll');
+                        if (!container) return;
+
+                        let filtered = typeof words !== 'undefined' ? [...words] : [];
+                        if (dashLevelFilter !== 'all') {
+                            filtered = filtered.filter(w => w.level === dashLevelFilter);
+                        }
+
+                        if (filtered.length === 0) {
+                            container.innerHTML = '<div class="dash-empty-msg">No words yet. Add some to get started!</div>';
+                            return;
+                        }
+
+                        // Shuffle for variety each time dashboard loads
+                        const shuffled = filtered.sort(() => Math.random() - 0.5);
+
+                        container.innerHTML = shuffled.map(w => {
+                            const synonymsHtml = (w.synonyms && w.synonyms.length)
+                                ? `<div class="dash-card-synonyms">${w.synonyms.map(s => `<span class="dash-card-synonym-tag">${s}</span>`).join('')}</div>`
+                                : '';
+                            const exampleHtml = w.example
+                                ? `<div class="dash-card-example">"${w.example.replace(/_/g, '____')}"</div>`
+                                : '';
+                            const posHtml = w.partOfSpeech
+                                ? `<div class="dash-card-pos">${w.partOfSpeech}</div>`
+                                : '';
+                            return `
+                                <div class="dash-word-card">
+                                    <div class="dash-word-card-inner">
+                                        <div class="dash-card-status ${w.status || 'new'}" title="${w.status || 'new'}"></div>
+                                        <span class="dash-card-level-badge ${w.level}">${w.level}</span>
+                                        <div class="dash-card-word">${w.word}</div>
+                                        ${posHtml}
+                                        <div class="dash-card-definition">${w.definition}</div>
+                                        ${exampleHtml}
+                                        ${synonymsHtml}
+                                        <button class="dash-card-speak-btn" onclick="speakWord('${w.word.replace(/'/g, "\\'")}')" title="Listen to pronunciation">
+                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+
+                    // Patch updateDashboard to also render cards
+                    function patchDashboard() {
+                        if (typeof updateDashboard === 'function' && !updateDashboard._patched) {
+                            const orig = updateDashboard;
+                            window.updateDashboard = function() {
+                                orig();
+                                renderDashCards();
+                            };
+                            window.updateDashboard._patched = true;
+                            // Render cards now since init() already called updateDashboard before patch
+                            renderDashCards();
+                        }
+                    }
+                    // Patch after app.js loads and init() runs
+                    window.addEventListener('load', patchDashboard);
+                    // Also try on DOMContentLoaded with a small delay to catch init()
+                    document.addEventListener('DOMContentLoaded', () => { setTimeout(patchDashboard, 50); });
+                </script>
             </section>
 
             <!-- Word List Page -->
@@ -300,6 +616,20 @@
                         <h3>Spelling</h3>
                         <p>Spell the word from its definition</p>
                     </div>
+                    <div class="exercise-type-card" onclick="startExercise('synonym-match')">
+                        <div class="exercise-icon-wrap exercise-synonym">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        </div>
+                        <h3>Synonym Match</h3>
+                        <p>Pick the synonym for each word</p>
+                    </div>
+                    <div class="exercise-type-card" onclick="startExercise('meaning-match')">
+                        <div class="exercise-icon-wrap exercise-meaning">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                        </div>
+                        <h3>Meaning Match</h3>
+                        <p>Match a definition to its word</p>
+                    </div>
                 </div>
                 <div id="exerciseArea" class="exercise-area hidden">
                     <div class="exercise-header">
@@ -373,6 +703,12 @@
                         <p>Paste words in format: <code>word | definition | example | synonyms | level</code> (one per line)</p>
                         <textarea id="bulkImport" rows="6" placeholder="ephemeral | lasting a short time | The beauty was ephemeral_ | fleeting, transient | advanced"></textarea>
                         <button class="btn-outline" onclick="bulkAddWords()">Import Words</button>
+                    </div>
+                    <div class="glass-card import-preview">
+                        <h2>Current Words (Import Format)</h2>
+                        <p>All words in pipe format, ready to copy and re-import elsewhere.</p>
+                        <textarea id="importPreviewText" rows="8" readonly style="opacity:0.85;cursor:default"></textarea>
+                        <button id="copyPreviewBtn" class="btn-outline" onclick="copyImportPreview()">Copy All</button>
                     </div>
                 </div>
             </section>
