@@ -756,6 +756,103 @@ function showFeedback(msg, type) {
     setTimeout(() => { el.textContent = ''; el.className = 'feedback-msg'; }, 3000);
 }
 
+// ==================== EXPORT ====================
+
+function showExportMenu() {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+
+    overlay.innerHTML = `
+        <div class="modal">
+            <h2>Export Words</h2>
+            <p style="color:var(--text-secondary);margin-bottom:18px;font-size:14px">Choose a format to export your ${words.length} words.</p>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="exportJSON(); this.closest('.modal-overlay').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    JSON File
+                </button>
+                <button class="action-btn" onclick="exportCSV(); this.closest('.modal-overlay').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+                    CSV Spreadsheet
+                </button>
+                <button class="action-btn" onclick="exportText(); this.closest('.modal-overlay').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    Plain Text
+                </button>
+                <button class="action-btn" onclick="exportPipe(); this.closest('.modal-overlay').remove()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    Pipe Format (re-importable)
+                </button>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn-outline" onclick="this.closest('.modal-overlay').remove()">Cancel</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+}
+
+function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function exportJSON() {
+    const data = words.map(w => ({
+        word: w.word,
+        definition: w.definition,
+        example: w.example || '',
+        synonyms: w.synonyms || [],
+        level: w.level,
+        partOfSpeech: w.partOfSpeech || '',
+        status: w.status,
+        score: w.score
+    }));
+    downloadFile('vocabmaster-words.json', JSON.stringify(data, null, 2), 'application/json');
+}
+
+function exportCSV() {
+    const header = 'Word,Definition,Example,Synonyms,Level,Part of Speech,Status,Score';
+    const rows = words.map(w => {
+        const escape = (s) => '"' + (s || '').replace(/"/g, '""') + '"';
+        return [
+            escape(w.word),
+            escape(w.definition),
+            escape(w.example),
+            escape((w.synonyms || []).join('; ')),
+            escape(w.level),
+            escape(w.partOfSpeech),
+            escape(w.status),
+            w.score || 0
+        ].join(',');
+    });
+    downloadFile('vocabmaster-words.csv', header + '\n' + rows.join('\n'), 'text/csv');
+}
+
+function exportText() {
+    const lines = words.map(w => {
+        let text = `${w.word} (${w.level})\n  ${w.definition}`;
+        if (w.example) text += `\n  Example: "${w.example}"`;
+        if (w.synonyms && w.synonyms.length) text += `\n  Synonyms: ${w.synonyms.join(', ')}`;
+        return text;
+    });
+    downloadFile('vocabmaster-words.txt', lines.join('\n\n'), 'text/plain');
+}
+
+function exportPipe() {
+    const lines = words.map(w =>
+        `${w.word} | ${w.definition} | ${w.example || ''} | ${(w.synonyms || []).join(', ')} | ${w.level}`
+    );
+    downloadFile('vocabmaster-words-import.txt', lines.join('\n'), 'text/plain');
+}
+
 // ==================== UTILITIES ====================
 
 function shuffleArray(arr) {

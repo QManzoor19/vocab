@@ -499,6 +499,7 @@ h2 {
 .action-flash:hover { border-color: #2563eb; color: #2563eb; }
 .action-practice:hover { border-color: var(--accent); color: var(--accent); }
 .action-add:hover { border-color: #16a34a; color: #16a34a; }
+.action-export:hover { border-color: #F2EDC2; color: #F2EDC2; }
 
 /* ===== BUTTONS ===== */
 .btn-primary {
