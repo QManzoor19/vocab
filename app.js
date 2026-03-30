@@ -334,6 +334,18 @@ function loadWords() {
     const saved = localStorage.getItem('vocabmaster_words');
     if (saved) {
         words = JSON.parse(saved);
+        // Merge in any new default words that don't exist yet
+        const existingNames = new Set(words.map(w => w.word.toLowerCase()));
+        let maxId = words.reduce((max, w) => Math.max(max, w.id || 0), 0);
+        let added = 0;
+        DEFAULT_WORDS.forEach(dw => {
+            if (!existingNames.has(dw.word.toLowerCase())) {
+                maxId++;
+                words.push({ ...dw, id: maxId });
+                added++;
+            }
+        });
+        if (added > 0) saveWords();
     } else {
         words = DEFAULT_WORDS.map((w, i) => ({ ...w, id: i + 1 }));
         saveWords();
