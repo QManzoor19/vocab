@@ -787,5 +787,43 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// ==================== PWA ICON ====================
+
+// Generate PNG apple-touch-icon dynamically (iOS doesn't support SVG icons)
+(function generateAppleTouchIcon() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 180;
+    canvas.height = 180;
+    const ctx = canvas.getContext('2d');
+    const s = 180, r = 35;
+
+    const grad = ctx.createLinearGradient(0, 0, s, s);
+    grad.addColorStop(0, '#346739');
+    grad.addColorStop(1, '#79AE6F');
+
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(s - r, 0);
+    ctx.quadraticCurveTo(s, 0, s, r);
+    ctx.lineTo(s, s - r);
+    ctx.quadraticCurveTo(s, s, s - r, s);
+    ctx.lineTo(r, s);
+    ctx.quadraticCurveTo(0, s, 0, s - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    ctx.fillStyle = '#F2EDC2';
+    ctx.font = 'bold 78px "Segoe UI", Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('VM', s / 2, s / 2 + 3);
+
+    const link = document.querySelector('link[rel="apple-touch-icon"]');
+    if (link) link.href = canvas.toDataURL('image/png');
+})();
+
 // Init
 init();

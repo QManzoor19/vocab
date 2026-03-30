@@ -1,0 +1,16 @@
+{
+  "name": "VocabMaster",
+  "short_name": "Vocab",
+  "description": "Learn and practice vocabulary words",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#3a3628",
+  "theme_color": "#346739",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}

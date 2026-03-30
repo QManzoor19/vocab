@@ -1286,19 +1286,34 @@ h2 {
 }
 
 /* ===== RESPONSIVE ===== */
+/* iOS safe areas */
+@supports (padding-top: env(safe-area-inset-top)) {
+    #topbar {
+        padding-top: calc(12px + env(safe-area-inset-top));
+        padding-left: calc(16px + env(safe-area-inset-left));
+        padding-right: calc(16px + env(safe-area-inset-right));
+    }
+    #content {
+        padding-bottom: calc(32px + env(safe-area-inset-bottom));
+    }
+}
+
+/* Tablet */
 @media (max-width: 900px) {
     #topbar {
         flex-direction: column;
-        gap: 12px;
-        padding: 12px 16px;
+        gap: 10px;
+        padding: 10px 16px;
     }
+    .topbar-left { display: none; }
+    .topbar-right { display: none; }
     .topbar-nav {
         overflow-x: auto;
         width: 100%;
         justify-content: center;
     }
     #content {
-        padding: 24px 16px;
+        padding: 20px 16px;
     }
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1314,26 +1329,203 @@ h2 {
         grid-template-columns: 1fr;
     }
     .exercise-selector {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
     .add-page-grid {
         grid-template-columns: 1fr;
     }
-    .nav-tab span:not(svg) {
-        display: none;
-    }
 }
 
+/* Phone */
 @media (max-width: 600px) {
+    #topbar {
+        padding: 8px 10px;
+        gap: 0;
+    }
+    .topbar-nav {
+        gap: 2px;
+        padding: 3px;
+        border-radius: 10px;
+    }
+    .nav-tab {
+        padding: 10px 0;
+        font-size: 11px;
+        flex: 1;
+        justify-content: center;
+        gap: 4px;
+        border-radius: 7px;
+        flex-direction: column;
+        min-width: 0;
+    }
+    .nav-tab svg {
+        width: 16px;
+        height: 16px;
+    }
+    #content {
+        padding: 16px 12px 32px;
+    }
+    h1 {
+        font-size: 24px;
+    }
+    .page-subtitle {
+        font-size: 13px;
+    }
     .stats-grid {
         grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .stat-card {
+        padding: 14px;
+        gap: 10px;
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+    }
+    .stat-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+    .stat-number {
+        font-size: 22px;
+    }
+    .stat-label {
+        font-size: 10px;
+    }
+    .glass-card {
+        padding: 16px;
+    }
+    .level-bar-row {
+        margin-bottom: 10px;
+    }
+    .level-name {
+        width: 80px;
+        font-size: 12px;
+    }
+    .action-btn {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    .flashcard {
+        width: 100%;
+        height: 260px;
+        margin-bottom: 20px;
+    }
+    .flashcard-front, .flashcard-back {
+        padding: 24px 20px;
+        border-radius: 16px;
+    }
+    .card-word {
+        font-size: 28px;
+    }
+    .card-definition {
+        font-size: 16px;
+    }
+    .card-example {
+        font-size: 13px;
+    }
+    .flashcard-rating {
+        gap: 8px;
+        font-size: 12px;
+    }
+    .rating-buttons {
+        gap: 6px;
+    }
+    .rate-btn {
+        padding: 7px 12px;
+        font-size: 12px;
+    }
+    .exercise-selector {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .exercise-type-card {
+        padding: 18px 12px;
+    }
+    .exercise-icon-wrap {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+    }
+    .exercise-icon-wrap svg {
+        width: 22px;
+        height: 22px;
+    }
+    .exercise-type-card h3 {
+        font-size: 13px;
+    }
+    .exercise-type-card p {
+        font-size: 11px;
+    }
+    .exercise-area {
+        padding: 16px;
+    }
+    .exercise-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .mc-question {
+        font-size: 16px;
+        padding: 16px;
+    }
+    .mc-option {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    .fill-blank-input {
+        flex-direction: column;
+    }
+    .fill-blank-input input {
+        width: 100%;
+        font-size: 16px;
+    }
+    .matching-grid {
+        gap: 12px;
+    }
+    .match-item {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+    .word-card {
+        flex-wrap: wrap;
+        padding: 12px 14px;
+        gap: 8px;
+    }
+    .word-card .word-name {
+        min-width: unset;
+        font-size: 14px;
+    }
+    .word-card .word-def {
+        width: 100%;
+        order: 3;
+        font-size: 12px;
+    }
+    .word-card .word-actions {
+        opacity: 1;
+    }
+    .wordlist-controls {
+        flex-wrap: wrap;
+    }
+    .wordlist-controls select {
+        flex: 1;
+        min-width: 0;
     }
     .form-row {
         grid-template-columns: 1fr;
     }
-    .nav-tab {
-        padding: 8px 10px;
-        font-size: 12px;
+    .form-group input, .form-group textarea, .form-group select {
+        font-size: 16px; /* prevents iOS zoom on focus */
+    }
+    .modal {
+        width: calc(100% - 24px);
+        margin: 12px;
+        max-height: 90vh;
+    }
+    .bulk-add textarea {
+        font-size: 13px;
     }
 }
 

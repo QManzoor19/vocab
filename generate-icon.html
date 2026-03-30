@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate Icon</title></head>
+<body>
+<p>Right-click the image below and save as <code>icon-180.png</code> and <code>icon-512.png</code></p>
+<canvas id="c180" width="180" height="180"></canvas>
+<canvas id="c512" width="512" height="512"></canvas>
+<script>
+function draw(canvas) {
+    const s = canvas.width;
+    const ctx = canvas.getContext('2d');
+    const r = s * 0.195;
+
+    // Rounded rect with gradient
+    const grad = ctx.createLinearGradient(0, 0, s, s);
+    grad.addColorStop(0, '#346739');
+    grad.addColorStop(1, '#79AE6F');
+
+    ctx.beginPath();
+    ctx.moveTo(r, 0);
+    ctx.lineTo(s - r, 0);
+    ctx.quadraticCurveTo(s, 0, s, r);
+    ctx.lineTo(s, s - r);
+    ctx.quadraticCurveTo(s, s, s - r, s);
+    ctx.lineTo(r, s);
+    ctx.quadraticCurveTo(0, s, 0, s - r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Text
+    ctx.fillStyle = '#F2EDC2';
+    ctx.font = `bold ${s * 0.43}px 'Segoe UI', Arial, sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('VM', s / 2, s / 2 + s * 0.02);
+}
+draw(document.getElementById('c180'));
+draw(document.getElementById('c512'));
+</script>
+</body>
+</html>
