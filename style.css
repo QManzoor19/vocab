@@ -157,6 +157,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 12px 32px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
     background: var(--topbar-bg);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -276,6 +277,9 @@ select:focus {
 #content {
     flex: 1;
     padding: 32px 40px;
+    padding-bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(40px + env(safe-area-inset-left, 0px));
+    padding-right: calc(40px + env(safe-area-inset-right, 0px));
     max-width: 960px;
     width: 100%;
     margin: 0 auto;
@@ -1286,17 +1290,6 @@ h2 {
 }
 
 /* ===== RESPONSIVE ===== */
-/* iOS safe areas */
-@supports (padding-top: env(safe-area-inset-top)) {
-    #topbar {
-        padding-top: calc(12px + env(safe-area-inset-top));
-        padding-left: calc(16px + env(safe-area-inset-left));
-        padding-right: calc(16px + env(safe-area-inset-right));
-    }
-    #content {
-        padding-bottom: calc(32px + env(safe-area-inset-bottom));
-    }
-}
 
 /* Tablet */
 @media (max-width: 900px) {
