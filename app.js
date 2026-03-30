@@ -864,19 +864,27 @@ function startExercise(type) {
         'matching': 'Matching',
         'spelling': 'Spelling',
         'synonym-match': 'Synonym Match',
-        'meaning-match': 'Meaning Match'
+        'meaning-match': 'Meaning Match',
+        'true-false': 'True or False',
+        'example-fill': 'Context Clues',
+        'antonym-pick': 'Odd One Out',
+        'word-scramble': 'Word Scramble',
+        'speed-round': 'Speed Round'
     };
     document.getElementById('exerciseTitle').textContent = titles[type];
     updateExerciseScore();
 
     if (type === 'matching') {
         generateMatching();
+    } else if (type === 'speed-round') {
+        startSpeedRound();
     } else {
         generateQuestion();
     }
 }
 
 function endExercise() {
+    if (speedTimer) { clearInterval(speedTimer); speedTimer = null; }
     const pct = exerciseState.total > 0 ? Math.round((exerciseState.score / exerciseState.total) * 100) : 0;
     const content = document.getElementById('exerciseContent');
     content.innerHTML = `
@@ -917,6 +925,14 @@ function generateQuestion() {
         generateSynonymMatch(word, filtered);
     } else if (exerciseState.type === 'meaning-match') {
         generateMeaningMatch(word, filtered);
+    } else if (exerciseState.type === 'true-false') {
+        generateTrueFalse(word, filtered);
+    } else if (exerciseState.type === 'example-fill') {
+        generateExampleFill(word, filtered);
+    } else if (exerciseState.type === 'antonym-pick') {
+        generateOddOneOut(filtered);
+    } else if (exerciseState.type === 'word-scramble') {
+        generateWordScramble(word);
     }
 }
 
@@ -1262,6 +1278,236 @@ function updateWordScore(id, correct) {
     else w.status = w.score === 0 ? 'new' : 'learning';
 
     saveWords();
+}
+
+// ==================== NEW EXERCISES ====================
+
+function generateTrueFalse(word, allWords) {
+    const isTrue = Math.random() > 0.5;
+    let shownDef = word.definition;
+    if (!isTrue) {
+        const others = allWords.filter(w => w.id !== word.id);
+        shownDef = others[Math.floor(Math.random() * others.length)].definition;
+    }
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:12px">Does this definition match the word?</div>
+            <strong style="font-size:24px">${word.word}</strong>
+            <div style="margin-top:16px;font-size:17px;color:var(--text-secondary)">"${shownDef}"</div>
+        </div>
+        <div class="mc-options">
+            <div class="mc-option" onclick="checkTrueFalse(this, true, ${isTrue})">True</div>
+            <div class="mc-option" onclick="checkTrueFalse(this, false, ${isTrue})">False</div>
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+}
+
+function checkTrueFalse(el, picked, actual) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    document.querySelectorAll('.mc-option').forEach(o => o.style.pointerEvents = 'none');
+    const correct = (picked === actual);
+    if (correct) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true);
+    } else {
+        el.classList.add('wrong');
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `The statement was ${actual ? 'True' : 'False'}`);
+    }
+    updateExerciseScore();
+}
+
+function generateExampleFill(word, allWords) {
+    const sentence = word.example || `The word _ means ${word.definition.toLowerCase()}.`;
+    const others = allWords.filter(w => w.id !== word.id);
+    shuffleArray(others);
+    const options = [word.word, ...others.slice(0, 3).map(w => w.word)];
+    shuffleArray(options);
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Which word fits?</div>
+            <div style="font-size:18px;line-height:1.6">${sentence.replace('_', '________')}</div>
+        </div>
+        <div class="mc-options">
+            ${options.map(opt => `<div class="mc-option" onclick="checkExampleFill(this, '${opt.replace(/'/g, "\\'")}')">${opt}</div>`).join('')}
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+}
+
+function checkExampleFill(el, picked) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    document.querySelectorAll('.mc-option').forEach(o => {
+        o.style.pointerEvents = 'none';
+        if (o.textContent === exerciseState.currentWord.word) o.classList.add('correct');
+    });
+    if (picked === exerciseState.currentWord.word) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true);
+    } else {
+        el.classList.add('wrong');
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `The answer was: ${exerciseState.currentWord.word}`);
+    }
+    updateExerciseScore();
+}
+
+function generateOddOneOut(allWords) {
+    // Pick 3 words with similar level, 1 from different level
+    const word = allWords[Math.floor(Math.random() * allWords.length)];
+    exerciseState.currentWord = word;
+    const sameLvl = allWords.filter(w => w.level === word.level && w.id !== word.id);
+    shuffleArray(sameLvl);
+    const group = sameLvl.slice(0, 2);
+    const diffLvl = allWords.filter(w => w.level !== word.level);
+    const odd = diffLvl[Math.floor(Math.random() * diffLvl.length)];
+    const options = [...group.map(w => ({ word: w.word, odd: false })), { word: word.word, odd: false }, { word: odd.word, odd: true }];
+    shuffleArray(options);
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">These words are all <strong>${word.level}</strong> level except one.</div>
+            Which word doesn't belong?
+        </div>
+        <div class="mc-options">
+            ${options.map(o => `<div class="mc-option" onclick="checkOddOneOut(this, ${o.odd})">${o.word}</div>`).join('')}
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+}
+
+function checkOddOneOut(el, isOdd) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    document.querySelectorAll('.mc-option').forEach(o => o.style.pointerEvents = 'none');
+    if (isOdd) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        showQuestionFeedback(true);
+    } else {
+        el.classList.add('wrong');
+        document.querySelectorAll('.mc-option').forEach(o => {
+            if (o.onclick && o.onclick.toString().includes('true')) o.classList.add('correct');
+        });
+        showQuestionFeedback(false);
+    }
+    updateExerciseScore();
+}
+
+function generateWordScramble(word) {
+    const letters = word.word.split('');
+    let scrambled;
+    do {
+        scrambled = [...letters];
+        shuffleArray(scrambled);
+    } while (scrambled.join('') === word.word && word.word.length > 1);
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Unscramble this word:</div>
+            <div style="font-size:32px;font-weight:800;letter-spacing:6px;font-family:monospace;color:var(--accent)">${scrambled.join('').toUpperCase()}</div>
+            <div style="font-size:14px;color:var(--text-light);margin-top:12px">Hint: ${word.definition}</div>
+        </div>
+        <div class="fill-blank-input">
+            <input type="text" id="scrambleAnswer" placeholder="Type the word..." onkeypress="if(event.key==='Enter')checkWordScramble()">
+            <button class="btn-primary" onclick="checkWordScramble()">Check</button>
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+    document.getElementById('scrambleAnswer').focus();
+}
+
+function checkWordScramble() {
+    const answer = document.getElementById('scrambleAnswer').value.trim().toLowerCase();
+    const correct = exerciseState.currentWord.word.toLowerCase();
+    exerciseState.total++;
+    if (answer === correct) {
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true);
+    } else {
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `The answer was: ${exerciseState.currentWord.word}`);
+    }
+    updateExerciseScore();
+    document.getElementById('scrambleAnswer').disabled = true;
+    document.querySelector('.fill-blank-input .btn-primary').disabled = true;
+}
+
+let speedTimer = null;
+
+function startSpeedRound() {
+    exerciseState.score = 0;
+    exerciseState.total = 0;
+    let timeLeft = 60;
+    const content = document.getElementById('exerciseContent');
+
+    function renderSpeedQuestion() {
+        const filtered = getFilteredWords();
+        const word = filtered[Math.floor(Math.random() * filtered.length)];
+        exerciseState.currentWord = word;
+        const others = filtered.filter(w => w.id !== word.id);
+        shuffleArray(others);
+        const options = [word.definition, ...others.slice(0, 3).map(w => w.definition)];
+        shuffleArray(options);
+
+        content.innerHTML = `
+            <div style="text-align:center;margin-bottom:16px">
+                <span style="font-size:28px;font-weight:900;color:var(--accent)">${timeLeft}s</span>
+            </div>
+            <div class="mc-question" style="padding:14px">
+                <strong style="font-size:22px">${word.word}</strong>
+            </div>
+            <div class="mc-options">
+                ${options.map(opt => `<div class="mc-option" onclick="checkSpeedAnswer(this, ${opt === word.definition})">${opt}</div>`).join('')}
+            </div>
+        `;
+    }
+
+    renderSpeedQuestion();
+
+    clearInterval(speedTimer);
+    speedTimer = setInterval(() => {
+        timeLeft--;
+        const timerEl = content.querySelector('span');
+        if (timerEl) timerEl.textContent = `${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(speedTimer);
+            endExercise();
+        }
+    }, 1000);
+
+    window._speedNext = renderSpeedQuestion;
+}
+
+function checkSpeedAnswer(el, correct) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    if (correct) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+    } else {
+        el.classList.add('wrong');
+        updateWordScore(exerciseState.currentWord.id, false);
+    }
+    updateExerciseScore();
+    setTimeout(() => {
+        if (window._speedNext) window._speedNext();
+    }, 400);
 }
 
 // ==================== ADD WORD ====================
