@@ -4,8 +4,8 @@
   "description": "Learn and practice vocabulary words",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#3a3628",
-  "theme_color": "#346739",
+  "background_color": "#2e2a1e",
+  "theme_color": "#2e2a1e",
   "icons": [
     {
       "src": "icon.svg",
