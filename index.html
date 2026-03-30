@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VocabMaster - Learn & Practice Words</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <div id="app">
+        <!-- Top Navigation -->
+        <header id="topbar">
+            <div class="topbar-left">
+                <div class="logo">
+                    <div class="logo-icon">VM</div>
+                    <span class="logo-text">VocabMaster</span>
+                </div>
+            </div>
+            <nav class="topbar-nav">
+                <button class="nav-tab active" data-page="dashboard">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                    Dashboard
+                </button>
+                <button class="nav-tab" data-page="wordlist">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Words
+                </button>
+                <button class="nav-tab" data-page="flashcards">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/></svg>
+                    Flashcards
+                </button>
+                <button class="nav-tab" data-page="exercises">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg>
+                    Practice
+                </button>
+                <button class="nav-tab" data-page="addword">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    Add Word
+                </button>
+            </nav>
+            <div class="topbar-right">
+                <div class="level-filter-inline">
+                    <label>Level:</label>
+                    <select id="globalLevelFilter">
+                        <option value="all">All</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="content">
+            <!-- Dashboard Page -->
+            <section id="page-dashboard" class="page active">
+                <div class="page-header">
+                    <h1>Dashboard</h1>
+                    <p class="page-subtitle">Track your vocabulary progress</p>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card stat-total">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="totalWords">0</div>
+                            <div class="stat-label">Total Words</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-mastered">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="masteredWords">0</div>
+                            <div class="stat-label">Mastered</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-learning">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="learningWords">0</div>
+                            <div class="stat-label">Learning</div>
+                        </div>
+                    </div>
+                    <div class="stat-card stat-streak">
+                        <div class="stat-icon">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-number" id="streakCount">0</div>
+                            <div class="stat-label">Day Streak</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-grid">
+                    <div class="glass-card level-breakdown">
+                        <h2>Words by Level</h2>
+                        <div class="level-bars">
+                            <div class="level-bar-row">
+                                <span class="level-dot beginner-dot"></span>
+                                <span class="level-name">Beginner</span>
+                                <div class="level-bar"><div class="level-fill beginner" id="bar-beginner"></div></div>
+                                <span class="level-count" id="count-beginner">0</span>
+                            </div>
+                            <div class="level-bar-row">
+                                <span class="level-dot intermediate-dot"></span>
+                                <span class="level-name">Intermediate</span>
+                                <div class="level-bar"><div class="level-fill intermediate" id="bar-intermediate"></div></div>
+                                <span class="level-count" id="count-intermediate">0</span>
+                            </div>
+                            <div class="level-bar-row">
+                                <span class="level-name">Advanced</span>
+                                <span class="level-dot advanced-dot"></span>
+                                <div class="level-bar"><div class="level-fill advanced" id="bar-advanced"></div></div>
+                                <span class="level-count" id="count-advanced">0</span>
+                            </div>
+                            <div class="level-bar-row">
+                                <span class="level-dot expert-dot"></span>
+                                <span class="level-name">Expert</span>
+                                <div class="level-bar"><div class="level-fill expert" id="bar-expert"></div></div>
+                                <span class="level-count" id="count-expert">0</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card quick-actions">
+                        <h2>Quick Start</h2>
+                        <div class="action-buttons">
+                            <button class="action-btn action-flash" onclick="navigateTo('flashcards')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/></svg>
+                                Flashcards
+                            </button>
+                            <button class="action-btn action-practice" onclick="navigateTo('exercises')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><circle cx="12" cy="17" r=".5"/></svg>
+                                Practice
+                            </button>
+                            <button class="action-btn action-add" onclick="navigateTo('addword')">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                                Add Word
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Word List Page -->
+            <section id="page-wordlist" class="page">
+                <div class="page-header">
+                    <h1>Word List</h1>
+                    <p class="page-subtitle">Browse and manage your vocabulary</p>
+                </div>
+                <div class="glass-card">
+                    <div class="wordlist-controls">
+                        <div class="search-wrap">
+                            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                            <input type="text" id="searchWords" placeholder="Search words..." class="search-input">
+                        </div>
+                        <select id="wordlistLevel">
+                            <option value="all">All Levels</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                        <select id="wordlistStatus">
+                            <option value="all">All Status</option>
+                            <option value="new">New</option>
+                            <option value="learning">Learning</option>
+                            <option value="mastered">Mastered</option>
+                        </select>
+                    </div>
+                    <div id="wordlistContainer" class="wordlist-container"></div>
+                </div>
+            </section>
+
+            <!-- Flashcards Page -->
+            <section id="page-flashcards" class="page">
+                <div class="page-header">
+                    <h1>Flashcards</h1>
+                    <p class="page-subtitle">Flip to reveal definitions - use arrow keys or click</p>
+                </div>
+                <div class="flashcard-controls">
+                    <select id="flashcardLevel">
+                        <option value="all">All Levels</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                        <option value="advanced">Advanced</option>
+                        <option value="expert">Expert</option>
+                    </select>
+                    <button id="shuffleCards" class="btn-outline">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                        Shuffle
+                    </button>
+                </div>
+                <div class="flashcard-area">
+                    <div id="flashcard" class="flashcard" onclick="flipCard()">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">
+                                <div class="card-level-badge" id="cardLevel"></div>
+                                <div class="card-word" id="cardWord">Start</div>
+                                <div class="card-hint">Click to flip</div>
+                            </div>
+                            <div class="flashcard-back">
+                                <div class="card-definition" id="cardDefinition"></div>
+                                <div class="card-example" id="cardExample"></div>
+                                <div class="card-synonym" id="cardSynonym"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flashcard-nav">
+                        <button id="prevCard" class="btn-circle" onclick="prevFlashcard()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <span id="cardCounter">0 / 0</span>
+                        <button id="nextCard" class="btn-circle" onclick="nextFlashcard()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                    </div>
+                    <div class="flashcard-rating">
+                        <span>How well did you know this?</span>
+                        <div class="rating-buttons">
+                            <button class="rate-btn rate-bad" onclick="rateCard('bad')">Didn't know</button>
+                            <button class="rate-btn rate-ok" onclick="rateCard('ok')">Somewhat</button>
+                            <button class="rate-btn rate-good" onclick="rateCard('good')">Knew it!</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Exercises Page -->
+            <section id="page-exercises" class="page">
+                <div class="page-header">
+                    <h1>Practice</h1>
+                    <p class="page-subtitle">Test your knowledge with different exercises</p>
+                </div>
+                <div class="exercise-selector">
+                    <div class="exercise-type-card" onclick="startExercise('multiple-choice')">
+                        <div class="exercise-icon-wrap exercise-mc">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                        </div>
+                        <h3>Multiple Choice</h3>
+                        <p>Pick the correct definition</p>
+                    </div>
+                    <div class="exercise-type-card" onclick="startExercise('fill-blank')">
+                        <div class="exercise-icon-wrap exercise-fill">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
+                        <h3>Fill in the Blank</h3>
+                        <p>Type the missing word</p>
+                    </div>
+                    <div class="exercise-type-card" onclick="startExercise('matching')">
+                        <div class="exercise-icon-wrap exercise-match">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                        </div>
+                        <h3>Matching</h3>
+                        <p>Match words to definitions</p>
+                    </div>
+                    <div class="exercise-type-card" onclick="startExercise('spelling')">
+                        <div class="exercise-icon-wrap exercise-spell">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                        </div>
+                        <h3>Spelling</h3>
+                        <p>Spell the word from its definition</p>
+                    </div>
+                </div>
+                <div id="exerciseArea" class="exercise-area hidden">
+                    <div class="exercise-header">
+                        <h2 id="exerciseTitle"></h2>
+                        <div class="exercise-progress">
+                            <span id="exerciseScore">Score: 0/0</span>
+                            <button class="btn-outline" onclick="endExercise()">End</button>
+                        </div>
+                    </div>
+                    <div id="exerciseContent" class="exercise-content"></div>
+                </div>
+            </section>
+
+            <!-- Add Word Page -->
+            <section id="page-addword" class="page">
+                <div class="page-header">
+                    <h1>Add New Word</h1>
+                    <p class="page-subtitle">Expand your vocabulary collection</p>
+                </div>
+                <div class="add-page-grid">
+                    <div class="glass-card">
+                        <form id="addWordForm" class="add-word-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newWord">Word *</label>
+                                    <input type="text" id="newWord" required placeholder="Enter the word">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newLevel">Level *</label>
+                                    <select id="newLevel" required>
+                                        <option value="beginner">Beginner</option>
+                                        <option value="intermediate">Intermediate</option>
+                                        <option value="advanced">Advanced</option>
+                                        <option value="expert">Expert</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="newDefinition">Definition *</label>
+                                <textarea id="newDefinition" required placeholder="Enter the definition"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="newExample">Example Sentence</label>
+                                <textarea id="newExample" placeholder='Use the word in a sentence (use "_" for blank)'></textarea>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="newSynonyms">Synonyms</label>
+                                    <input type="text" id="newSynonyms" placeholder="Comma separated">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPartOfSpeech">Part of Speech</label>
+                                    <select id="newPartOfSpeech">
+                                        <option value="">Select...</option>
+                                        <option value="noun">Noun</option>
+                                        <option value="verb">Verb</option>
+                                        <option value="adjective">Adjective</option>
+                                        <option value="adverb">Adverb</option>
+                                        <option value="preposition">Preposition</option>
+                                        <option value="conjunction">Conjunction</option>
+                                        <option value="interjection">Interjection</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">Add Word</button>
+                            <div id="addWordFeedback" class="feedback-msg"></div>
+                        </form>
+                    </div>
+                    <div class="glass-card bulk-add">
+                        <h2>Bulk Import</h2>
+                        <p>Paste words in format: <code>word | definition | example | synonyms | level</code> (one per line)</p>
+                        <textarea id="bulkImport" rows="6" placeholder="ephemeral | lasting a short time | The beauty was ephemeral_ | fleeting, transient | advanced"></textarea>
+                        <button class="btn-outline" onclick="bulkAddWords()">Import Words</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
