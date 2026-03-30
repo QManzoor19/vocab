@@ -869,7 +869,12 @@ function startExercise(type) {
         'example-fill': 'Context Clues',
         'antonym-pick': 'Odd One Out',
         'word-scramble': 'Word Scramble',
-        'speed-round': 'Speed Round'
+        'speed-round': 'Speed Round',
+        'first-letter': 'First Letter',
+        'category-sort': 'Category Sort',
+        'definition-write': 'Write the Definition',
+        'origin-guess': 'Guess the Origin',
+        'word-chain': 'Word Chain'
     };
     document.getElementById('exerciseTitle').textContent = titles[type];
     updateExerciseScore();
@@ -933,6 +938,16 @@ function generateQuestion() {
         generateOddOneOut(filtered);
     } else if (exerciseState.type === 'word-scramble') {
         generateWordScramble(word);
+    } else if (exerciseState.type === 'first-letter') {
+        generateFirstLetter(word);
+    } else if (exerciseState.type === 'category-sort') {
+        generateCategorySort(filtered);
+    } else if (exerciseState.type === 'definition-write') {
+        generateDefinitionWrite(word);
+    } else if (exerciseState.type === 'origin-guess') {
+        generateOriginGuess(word);
+    } else if (exerciseState.type === 'word-chain') {
+        generateWordChain(filtered);
     }
 }
 
@@ -1508,6 +1523,237 @@ function checkSpeedAnswer(el, correct) {
     setTimeout(() => {
         if (window._speedNext) window._speedNext();
     }, 400);
+}
+
+// --- First Letter: definition shown, type word knowing first letter ---
+function generateFirstLetter(word) {
+    const first = word.word[0].toUpperCase();
+    const blanks = first + ' _ '.repeat(word.word.length - 1).trim();
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">The word starts with <strong style="font-size:22px;color:var(--accent)">${first}</strong> and has <strong>${word.word.length}</strong> letters</div>
+            <div style="font-size:18px;margin-top:12px">${word.definition}</div>
+        </div>
+        <div class="fill-blank-input">
+            <input type="text" id="firstLetterAnswer" placeholder="${blanks}" onkeypress="if(event.key==='Enter')checkFirstLetter()">
+            <button class="btn-primary" onclick="checkFirstLetter()">Check</button>
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+    document.getElementById('firstLetterAnswer').focus();
+}
+
+function checkFirstLetter() {
+    const answer = document.getElementById('firstLetterAnswer').value.trim().toLowerCase();
+    exerciseState.total++;
+    if (answer === exerciseState.currentWord.word.toLowerCase()) {
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true);
+    } else {
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `The answer was: ${exerciseState.currentWord.word}`);
+    }
+    updateExerciseScore();
+    document.getElementById('firstLetterAnswer').disabled = true;
+}
+
+// --- Category Sort: given 4 words, pick which category they share ---
+function generateCategorySort(allWords) {
+    const cats = [...new Set(allWords.filter(w => w.category).map(w => w.category))];
+    if (cats.length < 3) { generateQuestion(); return; }
+    const correctCat = cats[Math.floor(Math.random() * cats.length)];
+    const catWords = allWords.filter(w => w.category === correctCat);
+    if (catWords.length < 3) { generateQuestion(); return; }
+    shuffleArray(catWords);
+    const shown = catWords.slice(0, 3);
+    exerciseState.currentWord = shown[0];
+
+    const wrongCats = cats.filter(c => c !== correctCat);
+    shuffleArray(wrongCats);
+    const options = [correctCat, ...wrongCats.slice(0, 3)];
+    shuffleArray(options);
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:12px">What category do these words share?</div>
+            <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px">
+                ${shown.map(w => `<span style="padding:8px 16px;background:var(--accent-bg);border-radius:99px;font-weight:700;font-size:16px">${w.word}</span>`).join('')}
+            </div>
+        </div>
+        <div class="mc-options">
+            ${options.map(o => `<div class="mc-option" onclick="checkCategorySort(this, '${o}', '${correctCat}')" style="text-transform:capitalize">${o}</div>`).join('')}
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+}
+
+function checkCategorySort(el, picked, correct) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    document.querySelectorAll('.mc-option').forEach(o => {
+        o.style.pointerEvents = 'none';
+        if (o.textContent.toLowerCase() === correct) o.classList.add('correct');
+    });
+    if (picked === correct) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        showQuestionFeedback(true);
+    } else {
+        el.classList.add('wrong');
+        showQuestionFeedback(false, `The category was: ${correct}`);
+    }
+    updateExerciseScore();
+}
+
+// --- Definition Write: see the word, type what it means ---
+function generateDefinitionWrite(word) {
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Write the definition of:</div>
+            <div style="font-size:32px;font-weight:900;letter-spacing:-1px">${word.word}</div>
+        </div>
+        <div style="max-width:500px;margin:0 auto">
+            <textarea id="defWriteAnswer" rows="3" placeholder="Type the definition..." style="width:100%;padding:12px;background:var(--input-bg);border:2px solid var(--input-border);border-radius:var(--radius-xs);color:var(--text);font-size:16px;font-family:inherit;resize:vertical;outline:none"></textarea>
+            <div style="display:flex;gap:10px;margin-top:10px;justify-content:center">
+                <button class="btn-primary" onclick="checkDefinitionWrite()">Check</button>
+                <button class="btn-outline" onclick="revealDefinition()">Reveal</button>
+            </div>
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+    document.getElementById('defWriteAnswer').focus();
+}
+
+function checkDefinitionWrite() {
+    const answer = document.getElementById('defWriteAnswer').value.trim().toLowerCase();
+    const correct = exerciseState.currentWord.definition.toLowerCase();
+    exerciseState.total++;
+    // Check if answer contains key words from definition
+    const keywords = correct.split(/\s+/).filter(w => w.length > 3);
+    const matched = keywords.filter(kw => answer.includes(kw));
+    const ratio = keywords.length > 0 ? matched.length / keywords.length : 0;
+
+    if (ratio >= 0.5) {
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true, `Actual: "${exerciseState.currentWord.definition}"`);
+    } else {
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `Actual: "${exerciseState.currentWord.definition}"`);
+    }
+    updateExerciseScore();
+    document.getElementById('defWriteAnswer').disabled = true;
+}
+
+function revealDefinition() {
+    exerciseState.total++;
+    updateWordScore(exerciseState.currentWord.id, false);
+    showQuestionFeedback(false, `Definition: "${exerciseState.currentWord.definition}"`);
+    updateExerciseScore();
+    document.getElementById('defWriteAnswer').disabled = true;
+}
+
+// --- Origin Guess: see a word, guess its language origin ---
+function generateOriginGuess(word) {
+    if (!word.origin) { generateQuestion(); return; }
+    const allOrigins = ['latin', 'greek', 'french', 'germanic', 'old english', 'italian', 'spanish', 'arabic', 'other'];
+    const wrong = allOrigins.filter(o => o !== word.origin);
+    shuffleArray(wrong);
+    const options = [word.origin, ...wrong.slice(0, 3)];
+    shuffleArray(options);
+
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">What is the origin of this word?</div>
+            <div style="font-size:28px;font-weight:900">${word.word}</div>
+            <div style="font-size:14px;color:var(--text-light);margin-top:8px">${word.definition}</div>
+        </div>
+        <div class="mc-options">
+            ${options.map(o => `<div class="mc-option" onclick="checkOriginGuess(this, '${o}', '${word.origin}')" style="text-transform:capitalize">${o}</div>`).join('')}
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+}
+
+function checkOriginGuess(el, picked, correct) {
+    if (el.parentElement.querySelector('.correct, .wrong')) return;
+    exerciseState.total++;
+    document.querySelectorAll('.mc-option').forEach(o => {
+        o.style.pointerEvents = 'none';
+        if (o.textContent.toLowerCase() === correct) o.classList.add('correct');
+    });
+    if (picked === correct) {
+        el.classList.add('correct');
+        exerciseState.score++;
+        updateWordScore(exerciseState.currentWord.id, true);
+        showQuestionFeedback(true);
+    } else {
+        el.classList.add('wrong');
+        updateWordScore(exerciseState.currentWord.id, false);
+        showQuestionFeedback(false, `Origin: ${correct}`);
+    }
+    updateExerciseScore();
+}
+
+// --- Word Chain: see a definition chain, type each word in sequence ---
+let chainWords = [];
+let chainIndex = 0;
+
+function generateWordChain(allWords) {
+    shuffleArray(allWords);
+    chainWords = allWords.slice(0, 5);
+    chainIndex = 0;
+    exerciseState.currentWord = chainWords[0];
+    showChainWord();
+}
+
+function showChainWord() {
+    if (chainIndex >= chainWords.length) {
+        showQuestionFeedback(true, `Chain complete! ${exerciseState.score} of ${chainWords.length} correct`);
+        return;
+    }
+    const w = chainWords[chainIndex];
+    exerciseState.currentWord = w;
+    const content = document.getElementById('exerciseContent');
+    content.innerHTML = `
+        <div style="text-align:center;margin-bottom:12px;font-size:13px;color:var(--text-secondary)">Word ${chainIndex + 1} of ${chainWords.length}</div>
+        <div class="mc-question">
+            <div style="font-size:14px;color:var(--text-secondary);margin-bottom:8px">Type the word that means:</div>
+            <div style="font-size:18px">${w.definition}</div>
+            <div style="font-size:13px;color:var(--text-light);margin-top:8px">Starts with: <strong style="color:var(--accent)">${w.word[0].toUpperCase()}</strong> &bull; ${w.word.length} letters</div>
+        </div>
+        <div class="fill-blank-input">
+            <input type="text" id="chainAnswer" placeholder="Type the word..." onkeypress="if(event.key==='Enter')checkChainWord()">
+            <button class="btn-primary" onclick="checkChainWord()">Next</button>
+        </div>
+        <div id="questionFeedback"></div>
+    `;
+    document.getElementById('chainAnswer').focus();
+}
+
+function checkChainWord() {
+    const answer = document.getElementById('chainAnswer').value.trim().toLowerCase();
+    const correct = chainWords[chainIndex].word.toLowerCase();
+    exerciseState.total++;
+    if (answer === correct) {
+        exerciseState.score++;
+        updateWordScore(chainWords[chainIndex].id, true);
+    } else {
+        updateWordScore(chainWords[chainIndex].id, false);
+    }
+    updateExerciseScore();
+    chainIndex++;
+    if (chainIndex < chainWords.length) {
+        showChainWord();
+    } else {
+        const pct = Math.round((exerciseState.score / exerciseState.total) * 100);
+        showQuestionFeedback(pct >= 60, `Chain done! ${exerciseState.score}/${exerciseState.total} (${pct}%)`);
+    }
 }
 
 // ==================== ADD WORD ====================
