@@ -684,10 +684,18 @@ function deleteWord(id) {
 function setupFlashcards() {
     const level = document.getElementById('flashcardLevel').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
+    const category = document.getElementById('flashcardCategory').value;
+    const origin = document.getElementById('flashcardOrigin').value;
+    const pos = document.getElementById('flashcardPos').value;
+    const status = document.getElementById('flashcardStatus').value;
 
     flashcardDeck = words.filter(w => {
         if (level !== 'all' && w.level !== level) return false;
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
+        if (category !== 'all' && (w.category || '') !== category) return false;
+        if (origin !== 'all' && (w.origin || '') !== origin) return false;
+        if (pos !== 'all' && (w.partOfSpeech || '') !== pos) return false;
+        if (status !== 'all' && (w.status || '') !== status) return false;
         return true;
     });
 
@@ -695,12 +703,33 @@ function setupFlashcards() {
     showFlashcard();
 
     document.getElementById('flashcardLevel').onchange = setupFlashcards;
+    document.getElementById('flashcardCategory').onchange = setupFlashcards;
+    document.getElementById('flashcardOrigin').onchange = setupFlashcards;
+    document.getElementById('flashcardPos').onchange = setupFlashcards;
+    document.getElementById('flashcardStatus').onchange = setupFlashcards;
     document.getElementById('shuffleCards').onclick = () => {
         shuffleArray(flashcardDeck);
         currentFlashcardIndex = 0;
         showFlashcard();
     };
 }
+
+function toggleFullscreen() {
+    const page = document.getElementById('page-flashcards');
+    if (!document.fullscreenElement) {
+        (page.requestFullscreen || page.webkitRequestFullscreen || page.msRequestFullscreen).call(page);
+        page.classList.add('flashcard-fullscreen');
+    } else {
+        (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen).call(document);
+        page.classList.remove('flashcard-fullscreen');
+    }
+}
+
+document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement) {
+        document.getElementById('page-flashcards').classList.remove('flashcard-fullscreen');
+    }
+});
 
 function showFlashcard() {
     const card = document.getElementById('flashcard');

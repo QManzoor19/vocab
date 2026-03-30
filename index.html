@@ -520,11 +520,11 @@
                             <option value="mastered">Mastered</option>
                         </select>
                         <select id="wordlistSort">
-                            <option value="default">Sort: Default</option>
+                            <option value="level">Sort: Level</option>
                             <option value="az">Sort: A-Z</option>
                             <option value="za">Sort: Z-A</option>
-                            <option value="level">Sort: Level</option>
                             <option value="score">Sort: Score</option>
+                            <option value="default">Sort: Added</option>
                         </select>
                     </div>
                     <div id="selectBar" class="select-bar hidden">
@@ -549,7 +549,7 @@
                     <h1>Flashcards</h1>
                     <p class="page-subtitle">Flip to reveal definitions - use arrow keys or click</p>
                 </div>
-                <div class="flashcard-controls">
+                <div class="flashcard-controls" style="flex-wrap:wrap;">
                     <select id="flashcardLevel">
                         <option value="all">All Levels</option>
                         <option value="beginner">Beginner</option>
@@ -557,9 +557,54 @@
                         <option value="advanced">Advanced</option>
                         <option value="expert">Expert</option>
                     </select>
+                    <select id="flashcardCategory">
+                        <option value="all">All Categories</option>
+                        <option value="society">Society</option>
+                        <option value="emotions">Emotions</option>
+                        <option value="business">Business</option>
+                        <option value="science">Science</option>
+                        <option value="arts">Arts</option>
+                        <option value="nature">Nature</option>
+                        <option value="philosophy">Philosophy</option>
+                        <option value="language">Language</option>
+                        <option value="daily life">Daily Life</option>
+                        <option value="law">Law</option>
+                        <option value="technology">Technology</option>
+                        <option value="medicine">Medicine</option>
+                        <option value="religion">Religion</option>
+                    </select>
+                    <select id="flashcardOrigin">
+                        <option value="all">All Origins</option>
+                        <option value="latin">Latin</option>
+                        <option value="greek">Greek</option>
+                        <option value="french">French</option>
+                        <option value="germanic">Germanic</option>
+                        <option value="old english">Old English</option>
+                        <option value="italian">Italian</option>
+                        <option value="spanish">Spanish</option>
+                        <option value="arabic">Arabic</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <select id="flashcardPos">
+                        <option value="all">All Types</option>
+                        <option value="noun">Noun</option>
+                        <option value="verb">Verb</option>
+                        <option value="adjective">Adjective</option>
+                        <option value="adverb">Adverb</option>
+                    </select>
+                    <select id="flashcardStatus">
+                        <option value="all">All Status</option>
+                        <option value="new">New</option>
+                        <option value="learning">Learning</option>
+                        <option value="mastered">Mastered</option>
+                    </select>
                     <button id="shuffleCards" class="btn-outline">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
                         Shuffle
+                    </button>
+                    <button id="fullscreenBtn" class="btn-outline" onclick="toggleFullscreen()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                        Fullscreen
                     </button>
                 </div>
                 <div class="flashcard-area">
