@@ -667,6 +667,10 @@
                         }
                     }
 
+                    let dashShuffled = [];
+                    let dashLoaded = 0;
+                    const DASH_BATCH = 10;
+
                     function renderDashCards() {
                         const container = document.getElementById('dashCardScroll');
                         if (!container) return;
@@ -681,37 +685,44 @@
                             return;
                         }
 
-                        // Shuffle for variety each time dashboard loads
-                        const shuffled = filtered.sort(() => Math.random() - 0.5);
-
-                        container.innerHTML = shuffled.map(w => {
-                            const synonymsHtml = (w.synonyms && w.synonyms.length)
-                                ? `<div class="dash-card-synonyms">${w.synonyms.map(s => `<span class="dash-card-synonym-tag">${s}</span>`).join('')}</div>`
-                                : '';
-                            const exampleHtml = w.example
-                                ? `<div class="dash-card-example">"${w.example.replace(/_/g, '____')}"</div>`
-                                : '';
-                            const posHtml = w.partOfSpeech
-                                ? `<div class="dash-card-pos">${w.partOfSpeech}</div>`
-                                : '';
-                            return `
-                                <div class="dash-word-card">
-                                    <div class="dash-word-card-inner">
-                                        <div class="dash-card-status ${w.status || 'new'}" title="${w.status || 'new'}"></div>
-                                        <span class="dash-card-level-badge ${w.level}">${w.level}</span>
-                                        <div class="dash-card-word">${w.word}</div>
-                                        ${posHtml}
-                                        <div class="dash-card-definition">${w.definition}</div>
-                                        ${exampleHtml}
-                                        ${synonymsHtml}
-                                        <button class="dash-card-speak-btn" onclick="speakWord('${w.word.replace(/'/g, "\\'")}')" title="Listen to pronunciation">
-                                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            `;
-                        }).join('');
+                        dashShuffled = filtered.sort(() => Math.random() - 0.5);
+                        dashLoaded = 0;
+                        container.innerHTML = '';
+                        loadMoreDashCards();
                     }
+
+                    function buildCardHTML(w) {
+                        return `<div class="dash-word-card">
+                            <div class="dash-word-card-inner">
+                                <div class="dash-card-status ${w.status || 'new'}"></div>
+                                <span class="dash-card-level-badge ${w.level}">${w.level}</span>
+                                <div class="dash-card-word">${w.word}</div>
+                                ${w.partOfSpeech ? `<div class="dash-card-pos">${w.partOfSpeech}</div>` : ''}
+                                <div class="dash-card-definition">${w.definition}</div>
+                                ${w.example ? `<div class="dash-card-example">"${w.example.replace(/_/g, '____')}"</div>` : ''}
+                                ${w.synonyms && w.synonyms.length ? `<div class="dash-card-synonyms">${w.synonyms.map(s => `<span class="dash-card-synonym-tag">${s}</span>`).join('')}</div>` : ''}
+                                <button class="dash-card-speak-btn" onclick="speakWord('${w.word.replace(/'/g, "\\'")}')" title="Listen">
+                                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                                </button>
+                            </div>
+                        </div>`;
+                    }
+
+                    function loadMoreDashCards() {
+                        const container = document.getElementById('dashCardScroll');
+                        if (!container || dashLoaded >= dashShuffled.length) return;
+                        const batch = dashShuffled.slice(dashLoaded, dashLoaded + DASH_BATCH);
+                        container.insertAdjacentHTML('beforeend', batch.map(buildCardHTML).join(''));
+                        dashLoaded += batch.length;
+                    }
+
+                    // Load more cards when scrolling near bottom
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const sc = document.getElementById('dashCardScroll');
+                        if (sc) sc.addEventListener('scroll', () => {
+                            if (sc.scrollTop + sc.clientHeight > sc.scrollHeight - 400) loadMoreDashCards();
+                        });
+                    });
 
                     // Patch updateDashboard to also render cards
                     function patchDashboard() {
