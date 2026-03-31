@@ -48,9 +48,6 @@ function loadWords() {
             if (dw) {
                 if (!w.category && dw.category) w.category = dw.category;
                 if (!w.origin && dw.origin) w.origin = dw.origin;
-                if (!w.etymology && dw.etymology) w.etymology = dw.etymology;
-                if (!w.usage && dw.usage) w.usage = dw.usage;
-                if (!w.related && dw.related) w.related = dw.related;
                 added++;
             }
             // Ensure spaced repetition fields exist
@@ -282,9 +279,20 @@ function renderWordList() {
     `).join('');
 }
 
+function getWordDetails(word) {
+    if (typeof WORD_DETAILS !== 'undefined' && WORD_DETAILS[word]) {
+        const d = WORD_DETAILS[word];
+        return { etymology: d.e || '', usage: d.u || '', related: d.r || [] };
+    }
+    return { etymology: '', usage: '', related: [] };
+}
+
 function showWordDetail(id) {
     const w = words.find(w => w.id === id);
     if (!w) return;
+
+    // Load detail data lazily
+    const det = getWordDetails(w.word);
 
     const overlay = document.createElement('div');
     overlay.className = 'modal-overlay';
@@ -308,9 +316,9 @@ function showWordDetail(id) {
             <p style="font-size:16px;margin:16px 0">${w.definition}</p>
             ${w.example ? `<p style="color:var(--text-dim);font-style:italic;margin-bottom:12px">"${w.example.replace('_', '<strong style="color:var(--accent)">' + w.word + '</strong>')}"</p>` : ''}
             ${w.synonyms && w.synonyms.length ? `<p style="font-size:13px;color:var(--accent)">Synonyms: ${w.synonyms.join(', ')}</p>` : ''}
-            ${w.etymology ? `<div style="margin-top:14px;padding:10px 14px;background:rgba(121,174,111,0.08);border-radius:8px;border-left:3px solid #79AE6F"><p style="font-size:11px;font-weight:700;color:#79AE6F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Etymology</p><p style="font-size:13px;color:var(--text-secondary);line-height:1.5">${w.etymology}</p></div>` : ''}
-            ${w.usage ? `<div style="margin-top:10px;padding:10px 14px;background:rgba(242,237,194,0.08);border-radius:8px;border-left:3px solid #F2EDC2"><p style="font-size:11px;font-weight:700;color:#F2EDC2;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Usage</p><p style="font-size:13px;color:var(--text-secondary);line-height:1.5">${w.usage}</p></div>` : ''}
-            ${w.related && w.related.length ? `<p style="font-size:13px;color:var(--text-light);margin-top:10px">Related: ${w.related.join(', ')}</p>` : ''}
+            ${det.etymology ? `<div style="margin-top:14px;padding:10px 14px;background:rgba(121,174,111,0.08);border-radius:8px;border-left:3px solid #79AE6F"><p style="font-size:11px;font-weight:700;color:#79AE6F;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Etymology</p><p style="font-size:13px;color:var(--text-secondary);line-height:1.5">${det.etymology}</p></div>` : ''}
+            ${det.usage ? `<div style="margin-top:10px;padding:10px 14px;background:rgba(242,237,194,0.08);border-radius:8px;border-left:3px solid #F2EDC2"><p style="font-size:11px;font-weight:700;color:#F2EDC2;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px">Usage</p><p style="font-size:13px;color:var(--text-secondary);line-height:1.5">${det.usage}</p></div>` : ''}
+            ${det.related.length ? `<p style="font-size:13px;color:var(--text-light);margin-top:10px">Related: ${det.related.join(', ')}</p>` : ''}
             ${w.origin ? `<p style="font-size:12px;color:var(--text-light);margin-top:6px;text-transform:capitalize">Origin: ${w.origin}</p>` : ''}
             <p style="margin-top:12px;font-size:13px;color:var(--text-dim)">Status: ${w.status} &bull; Score: ${w.score}</p>
             <div class="add-to-list-dropdown">

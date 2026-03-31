@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vocabmaster-v14';
+const CACHE_NAME = 'vocabmaster-v15';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './icon.svg',
   './manifest.json'
 ];
+// words-detail.js loaded lazily, not precached
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
