@@ -384,12 +384,12 @@
                     /* Individual word card */
                     .dash-word-card {
                         scroll-snap-align: start;
-                        min-height: calc(100vh - 200px);
+                        min-height: 70vh;
                         display: flex;
                         flex-direction: column;
                         align-items: center;
                         justify-content: center;
-                        padding: 32px 20px;
+                        padding: 20px 16px;
                         text-align: center;
                     }
                     .dash-word-card-inner {
@@ -529,7 +529,7 @@
                         .dash-stats-bar { gap: 4px; padding: 8px; }
                         .dash-stat-num { font-size: 18px; }
                         .dash-stat-label { font-size: 9px; }
-                        .dash-word-card { padding: 20px 12px; min-height: calc(100vh - 180px); }
+                        .dash-word-card { padding: 16px 10px; min-height: 65vh; }
                         .dash-word-card-inner { padding: 28px 18px; }
                         .dash-card-word { font-size: 28px; }
                         .dash-card-definition { font-size: 15px; }
@@ -851,6 +851,9 @@
                         <option value="new">New</option>
                         <option value="learning">Learning</option>
                         <option value="mastered">Mastered</option>
+                    </select>
+                    <select id="flashcardList">
+                        <option value="all">All Words</option>
                     </select>
                     <button id="shuffleCards" class="btn-outline">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>

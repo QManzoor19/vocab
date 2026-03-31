@@ -417,6 +417,17 @@ function deleteWord(id) {
 
 // ==================== FLASHCARDS ====================
 
+function populateFlashcardListFilter() {
+    const sel = document.getElementById('flashcardList');
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="all">All Words</option>';
+    customLists.forEach(l => {
+        sel.innerHTML += `<option value="${l.id}">${l.name} (${l.wordIds.length})</option>`;
+    });
+    sel.value = current || 'all';
+}
+
 function setupFlashcards() {
     const level = document.getElementById('flashcardLevel').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
@@ -424,8 +435,18 @@ function setupFlashcards() {
     const origin = document.getElementById('flashcardOrigin').value;
     const pos = document.getElementById('flashcardPos').value;
     const status = document.getElementById('flashcardStatus').value;
+    const listId = document.getElementById('flashcardList').value;
+
+    populateFlashcardListFilter();
+
+    let listWordIds = null;
+    if (listId !== 'all') {
+        const list = customLists.find(l => l.id === parseInt(listId));
+        if (list) listWordIds = new Set(list.wordIds);
+    }
 
     flashcardDeck = words.filter(w => {
+        if (listWordIds && !listWordIds.has(w.id)) return false;
         if (level !== 'all' && w.level !== level) return false;
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
         if (category !== 'all' && (w.category || '') !== category) return false;
@@ -443,6 +464,7 @@ function setupFlashcards() {
     document.getElementById('flashcardOrigin').onchange = setupFlashcards;
     document.getElementById('flashcardPos').onchange = setupFlashcards;
     document.getElementById('flashcardStatus').onchange = setupFlashcards;
+    document.getElementById('flashcardList').onchange = setupFlashcards;
     document.getElementById('shuffleCards').onclick = () => {
         shuffleArray(flashcardDeck);
         currentFlashcardIndex = 0;
