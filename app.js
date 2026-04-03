@@ -23,6 +23,7 @@ function init() {
     renderWordList();
     setupFlashcards();
     updateStreak();
+    checkImportFromURL();
 }
 
 function loadWords() {
@@ -2142,6 +2143,7 @@ function renderLists() {
                 <div class="list-card-count">${count} word${count !== 1 ? 's' : ''}</div>
             </div>
             <div class="list-card-actions">
+                <button onclick="event.stopPropagation(); shareList(${list.id})" title="Share">Share</button>
                 <button onclick="event.stopPropagation(); renameList(${list.id})" title="Rename">Rename</button>
                 <button class="delete-list-btn" onclick="event.stopPropagation(); deleteList(${list.id})" title="Delete">Delete</button>
             </div>
@@ -2244,6 +2246,146 @@ function deleteList(id) {
     customLists = customLists.filter(l => l.id !== id);
     saveLists();
     renderLists();
+}
+
+// ==================== REVIEW WEAKEST ====================
+
+function reviewWeakest() {
+    navigateTo('flashcards');
+    // Get words sorted by weakest (lowest score, most overdue)
+    const weak = [...words].sort((a, b) => {
+        const aScore = a.score || 0;
+        const bScore = b.score || 0;
+        if (aScore !== bScore) return aScore - bScore;
+        return (a.interval || 1) - (b.interval || 1);
+    });
+    flashcardDeck = weak.slice(0, 20);
+    currentFlashcardIndex = 0;
+    showFlashcard();
+}
+
+// ==================== SHARE LIST ====================
+
+function shareList(id) {
+    const list = customLists.find(l => l.id === id);
+    if (!list) return;
+
+    const listWords = list.wordIds.map(wid => words.find(w => w.id === wid)).filter(Boolean);
+    if (listWords.length === 0) {
+        alert('This list is empty');
+        return;
+    }
+
+    // Encode list data as base64 in a URL fragment
+    const data = {
+        name: list.name,
+        words: listWords.map(w => ({
+            word: w.word, definition: w.definition,
+            example: w.example || '', synonyms: w.synonyms || [],
+            level: w.level, partOfSpeech: w.partOfSpeech || ''
+        }))
+    };
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+    const url = window.location.origin + window.location.pathname + '#import=' + encoded;
+
+    if (navigator.share) {
+        navigator.share({ title: list.name + ' - VocabMaster', text: `Check out my word list "${list.name}" (${listWords.length} words)`, url: url });
+    } else if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => alert('Share link copied to clipboard!'));
+    } else {
+        prompt('Copy this share link:', url);
+    }
+}
+
+function checkImportFromURL() {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#import=')) return;
+
+    try {
+        const encoded = hash.substring(8);
+        const data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+        if (!data.name || !data.words || !data.words.length) return;
+
+        if (!confirm(`Import list "${data.name}" with ${data.words.length} words?`)) {
+            window.location.hash = '';
+            return;
+        }
+
+        // Create the list
+        const listId = customLists.reduce((max, l) => Math.max(max, l.id), 0) + 1;
+        const newList = { id: listId, name: data.name, wordIds: [], created: Date.now() };
+
+        let maxId = words.reduce((max, w) => Math.max(max, w.id || 0), 0);
+        const existingNames = new Set(words.map(w => w.word.toLowerCase()));
+
+        data.words.forEach(w => {
+            if (existingNames.has(w.word.toLowerCase())) {
+                // Word exists, just add to list
+                const existing = words.find(ew => ew.word.toLowerCase() === w.word.toLowerCase());
+                if (existing && !newList.wordIds.includes(existing.id)) newList.wordIds.push(existing.id);
+            } else {
+                maxId++;
+                words.push({
+                    id: maxId, word: w.word, definition: w.definition,
+                    example: w.example || '', synonyms: w.synonyms || [],
+                    level: w.level || 'beginner', partOfSpeech: w.partOfSpeech || '',
+                    category: '', origin: '', status: 'new', score: 0
+                });
+                existingNames.add(w.word.toLowerCase());
+                newList.wordIds.push(maxId);
+            }
+        });
+
+        customLists.push(newList);
+        saveWords();
+        saveLists();
+        window.location.hash = '';
+        alert(`Imported "${data.name}" with ${newList.wordIds.length} words!`);
+        navigateTo('lists');
+        renderLists();
+    } catch (e) {
+        console.error('Import failed:', e);
+        window.location.hash = '';
+    }
+}
+
+// ==================== QUIZLET / ANKI IMPORT ====================
+
+function importQuizletAnki() {
+    const text = document.getElementById('quizletAnkiImport').value.trim();
+    if (!text) return;
+
+    const lines = text.split('\n').filter(Boolean);
+    let added = 0;
+    let maxId = words.reduce((max, w) => Math.max(max, w.id || 0), 0);
+    const existingNames = new Set(words.map(w => w.word.toLowerCase()));
+
+    lines.forEach(line => {
+        // Try tab first (Quizlet), then semicolon (Anki)
+        let parts = line.split('\t');
+        if (parts.length < 2) parts = line.split(';');
+        if (parts.length < 2) return;
+
+        const word = parts[0].trim();
+        const definition = parts[1].trim();
+        if (!word || !definition || existingNames.has(word.toLowerCase())) return;
+
+        maxId++;
+        existingNames.add(word.toLowerCase());
+        words.push({
+            id: maxId, word, definition,
+            example: '', synonyms: [], level: 'beginner',
+            partOfSpeech: '', category: '', origin: '',
+            status: 'new', score: 0
+        });
+        added++;
+    });
+
+    saveWords();
+    document.getElementById('quizletAnkiImport').value = '';
+    alert(`Imported ${added} word(s)!`);
+    renderWordList();
+    updateDashboard();
 }
 
 // ==================== UTILITIES ====================
