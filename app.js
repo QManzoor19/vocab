@@ -203,6 +203,7 @@ function updateSelectBar() {
     if (selectMode && selectedIds.size > 0) {
         bar.classList.remove('hidden');
         document.getElementById('selectCount').textContent = `${selectedIds.size} selected`;
+        populateBulkListDropdown();
     } else {
         bar.classList.add('hidden');
     }
@@ -217,6 +218,35 @@ function bulkDelete() {
     updateSelectBar();
     renderWordList();
     updateDashboard();
+}
+
+function populateBulkListDropdown() {
+    const sel = document.getElementById('bulkList');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Add to List...</option>';
+    customLists.forEach(l => {
+        sel.innerHTML += `<option value="${l.id}">${l.name}</option>`;
+    });
+}
+
+function bulkAddToList() {
+    const listId = parseInt(document.getElementById('bulkList').value);
+    if (!listId) return;
+    const list = customLists.find(l => l.id === listId);
+    if (!list) return;
+    let added = 0;
+    selectedIds.forEach(id => {
+        if (!list.wordIds.includes(id)) {
+            list.wordIds.push(id);
+            added++;
+        }
+    });
+    saveLists();
+    selectedIds.clear();
+    document.getElementById('bulkList').value = '';
+    updateSelectBar();
+    renderWordList();
+    alert(`Added ${added} word(s) to "${list.name}"`);
 }
 
 function bulkChangeLevel() {
