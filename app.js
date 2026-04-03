@@ -150,6 +150,11 @@ function getFilteredWords() {
         filtered = filtered.filter(w => w.level === globalLevel);
     }
 
+    // Practice list filter
+    if (window._practiceListIds) {
+        filtered = filtered.filter(w => window._practiceListIds.has(w.id));
+    }
+
     // Exercise page filters
     const catEl = document.getElementById('exerciseCategory');
     const posEl = document.getElementById('exercisePartOfSpeech');
@@ -631,6 +636,7 @@ function rateCard(rating) {
 // ==================== EXERCISES ====================
 
 function resetExerciseView() {
+    window._practiceListIds = null;
     document.querySelector('.exercise-selector').style.display = 'grid';
     document.getElementById('exerciseArea').classList.add('hidden');
 }
@@ -2124,11 +2130,14 @@ function viewList(id) {
     } else {
         wordsHtml = listWords.map(w => `
             <div class="list-detail-word">
-                <div>
+                <div style="flex:1;min-width:0">
                     <span style="font-weight:700;cursor:pointer" onclick="this.closest('.modal-overlay').remove(); showWordDetail(${w.id})">${w.word}</span>
                     <span style="font-size:12px;color:var(--text-secondary);margin-left:8px">${w.definition.substring(0, 40)}${w.definition.length > 40 ? '...' : ''}</span>
                 </div>
-                <button onclick="removeFromList(${list.id}, ${w.id}); this.closest('.modal-overlay').remove(); viewList(${list.id})" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px" title="Remove">&times;</button>
+                <div style="display:flex;gap:4px;flex-shrink:0">
+                    <button onclick="this.closest('.modal-overlay').remove(); editWord(${w.id})" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:14px" title="Edit">&#9998;</button>
+                    <button onclick="removeFromList(${list.id}, ${w.id}); this.closest('.modal-overlay').remove(); viewList(${list.id})" style="background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px" title="Remove">&times;</button>
+                </div>
             </div>
         `).join('');
     }
@@ -2137,6 +2146,10 @@ function viewList(id) {
         <div class="modal" style="max-width:500px">
             <h2>${list.name}</h2>
             <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">${listWords.length} word${listWords.length !== 1 ? 's' : ''}</p>
+            ${listWords.length >= 4 ? `<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+                <button class="btn-primary" style="font-size:13px;padding:8px 16px" onclick="this.closest('.modal-overlay').remove(); practiceList(${list.id})">Practice this List</button>
+                <button class="btn-outline" style="font-size:13px;padding:8px 16px" onclick="this.closest('.modal-overlay').remove(); flashcardList(${list.id})">Flashcards</button>
+            </div>` : listWords.length > 0 ? `<p style="font-size:12px;color:var(--text-light);margin-bottom:14px">Add at least 4 words to practice this list</p>` : ''}
             <div style="max-height:300px;overflow-y:auto;border:1px solid var(--card-border);border-radius:var(--radius-xs)">${wordsHtml}</div>
             <div class="modal-buttons" style="margin-top:16px">
                 <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
@@ -2145,6 +2158,26 @@ function viewList(id) {
     `;
 
     document.body.appendChild(overlay);
+}
+
+function practiceList(listId) {
+    const list = customLists.find(l => l.id === listId);
+    if (!list || list.wordIds.length < 4) return;
+    // Store active list for exercises
+    window._practiceListIds = new Set(list.wordIds);
+    navigateTo('exercises');
+    // Auto-start multiple choice with this list
+    startExercise('multiple-choice');
+}
+
+function flashcardList(listId) {
+    const list = customLists.find(l => l.id === listId);
+    if (!list) return;
+    navigateTo('flashcards');
+    // Override deck with just this list's words
+    flashcardDeck = list.wordIds.map(id => words.find(w => w.id === id)).filter(Boolean);
+    currentFlashcardIndex = 0;
+    showFlashcard();
 }
 
 function addToList(listId, wordId) {
