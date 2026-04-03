@@ -755,39 +755,6 @@
                     <h1>Flashcards</h1>
                     <p class="page-subtitle">Flip to reveal definitions - use arrow keys or click</p>
                 </div>
-                <div class="flashcard-controls" style="flex-wrap:wrap;">
-                    <select id="flashcardLevel">
-                        <option value="all">All Levels</option>
-                        <option value="beginner">Beginner</option>
-                        <option value="intermediate">Intermediate</option>
-                        <option value="advanced">Advanced</option>
-                        <option value="expert">Expert</option>
-                    </select>
-                    <select id="flashcardStatus">
-                        <option value="all">All Status</option>
-                        <option value="new">New</option>
-                        <option value="learning">Learning</option>
-                        <option value="mastered">Mastered</option>
-                    </select>
-                    <select id="flashcardList">
-                        <option value="all">All Words</option>
-                    </select>
-                    <select id="flashcardLetter">
-                        <option value="all">All Letters</option>
-                        <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option><option value="T">T</option><option value="U">U</option><option value="V">V</option><option value="W">W</option><option value="X">X</option><option value="Y">Y</option><option value="Z">Z</option>
-                    </select>
-                    <button id="defFirstBtn" class="btn-outline" onclick="toggleDefFirst()">
-                        Definition First
-                    </button>
-                    <button id="shuffleCards" class="btn-outline">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-                        Shuffle
-                    </button>
-                    <button id="fullscreenBtn" class="btn-outline" onclick="toggleFullscreen()">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
-                        Fullscreen
-                    </button>
-                </div>
                 <div class="flashcard-area">
                     <button class="fullscreen-close-btn" onclick="toggleFullscreen()" title="Exit fullscreen">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -825,6 +792,37 @@
                             <button class="rate-btn rate-ok" onclick="rateCard('ok')">Somewhat</button>
                             <button class="rate-btn rate-good" onclick="rateCard('good')">Knew it!</button>
                         </div>
+                    </div>
+                    <div class="flashcard-controls" style="flex-wrap:wrap;margin-top:20px;">
+                        <select id="flashcardLevel">
+                            <option value="all">All Levels</option>
+                            <option value="beginner">Beginner</option>
+                            <option value="intermediate">Intermediate</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="expert">Expert</option>
+                        </select>
+                        <select id="flashcardStatus">
+                            <option value="all">All Status</option>
+                            <option value="new">New</option>
+                            <option value="learning">Learning</option>
+                            <option value="mastered">Mastered</option>
+                        </select>
+                        <select id="flashcardList">
+                            <option value="all">All Words</option>
+                        </select>
+                        <select id="flashcardLetter">
+                            <option value="all">All Letters</option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option><option value="T">T</option><option value="U">U</option><option value="V">V</option><option value="W">W</option><option value="X">X</option><option value="Y">Y</option><option value="Z">Z</option>
+                        </select>
+                        <button id="defFirstBtn" class="btn-outline" onclick="toggleDefFirst()">Definition First</button>
+                        <button id="shuffleCards" class="btn-outline">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+                            Shuffle
+                        </button>
+                        <button id="fullscreenBtn" class="btn-outline" onclick="toggleFullscreen()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                            Fullscreen
+                        </button>
                     </div>
                 </div>
                 <div class="glass-card deck-list-card" style="margin-top:20px">
