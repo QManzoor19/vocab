@@ -161,10 +161,19 @@ function getFilteredWords() {
     }
 
     // Exercise page filters
+    const exLevelEl = document.getElementById('exerciseLevel');
     const catEl = document.getElementById('exerciseCategory');
     const posEl = document.getElementById('exercisePartOfSpeech');
     const letEl = document.getElementById('exerciseLetter');
     const origEl = document.getElementById('exerciseOrigin');
+
+    if (exLevelEl && exLevelEl.value !== 'all') {
+        filtered = filtered.filter(w => w.level === exLevelEl.value);
+    }
+    const exStatusEl = document.getElementById('exerciseStatus');
+    if (exStatusEl && exStatusEl.value !== 'all') {
+        filtered = filtered.filter(w => (w.status || '') === exStatusEl.value);
+    }
 
     if (catEl && catEl.value !== 'all') {
         filtered = filtered.filter(w => (w.category || '') === catEl.value);
