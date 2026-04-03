@@ -771,6 +771,9 @@
                     </button>
                 </div>
                 <div class="flashcard-area">
+                    <button class="fullscreen-close-btn" onclick="toggleFullscreen()" title="Exit fullscreen">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
                     <div id="flashcard" class="flashcard" onclick="flipCard()">
                         <div class="flashcard-inner">
                             <div class="flashcard-front">
@@ -806,7 +809,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="glass-card" style="margin-top:20px">
+                <div class="glass-card deck-list-card" style="margin-top:20px">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
                         <h2 style="margin:0" id="deckListTitle">Words in deck</h2>
                         <span style="font-size:13px;color:var(--text-secondary)" id="deckListCount"></span>
@@ -847,71 +850,7 @@
                         }
                     }
                 </style>
-                <div class="exercise-filters">
-                    <select id="exerciseCategory">
-                        <option value="all">All Categories</option>
-                        <option value="society">Society</option>
-                        <option value="emotions">Emotions</option>
-                        <option value="business">Business</option>
-                        <option value="science">Science</option>
-                        <option value="arts">Arts</option>
-                        <option value="nature">Nature</option>
-                        <option value="philosophy">Philosophy</option>
-                        <option value="language">Language</option>
-                        <option value="daily-life">Daily Life</option>
-                        <option value="law">Law</option>
-                        <option value="technology">Technology</option>
-                        <option value="medicine">Medicine</option>
-                        <option value="religion">Religion</option>
-                    </select>
-                    <select id="exercisePartOfSpeech">
-                        <option value="all">All</option>
-                        <option value="noun">Noun</option>
-                        <option value="verb">Verb</option>
-                        <option value="adjective">Adjective</option>
-                        <option value="adverb">Adverb</option>
-                    </select>
-                    <select id="exerciseLetter">
-                        <option value="all">All Letters</option>
-                        <option value="A">A</option>
-                        <option value="B">B</option>
-                        <option value="C">C</option>
-                        <option value="D">D</option>
-                        <option value="E">E</option>
-                        <option value="F">F</option>
-                        <option value="G">G</option>
-                        <option value="H">H</option>
-                        <option value="I">I</option>
-                        <option value="J">J</option>
-                        <option value="K">K</option>
-                        <option value="L">L</option>
-                        <option value="M">M</option>
-                        <option value="N">N</option>
-                        <option value="O">O</option>
-                        <option value="P">P</option>
-                        <option value="Q">Q</option>
-                        <option value="R">R</option>
-                        <option value="S">S</option>
-                        <option value="T">T</option>
-                        <option value="U">U</option>
-                        <option value="V">V</option>
-                        <option value="W">W</option>
-                        <option value="X">X</option>
-                        <option value="Y">Y</option>
-                        <option value="Z">Z</option>
-                    </select>
-                    <select id="exerciseOrigin">
-                        <option value="all">All Origins</option>
-                        <option value="latin">Latin</option>
-                        <option value="greek">Greek</option>
-                        <option value="french">French</option>
-                        <option value="germanic">Germanic</option>
-                        <option value="old-english">Old English</option>
-                        <option value="italian">Italian</option>
-                        <option value="spanish">Spanish</option>
-                        <option value="arabic">Arabic</option>
-                        <option value="other">Other</option>
-                    </select>
+                <div class="exercise-filters" style="display:none">
                 </div>
                 <div class="exercise-selector">
                     <div class="exercise-type-card" onclick="startExercise('multiple-choice')">
@@ -1114,10 +1053,17 @@
                         <button class="btn-outline" onclick="bulkAddWords()">Import Words</button>
                     </div>
                     <div class="glass-card import-preview">
-                        <h2>Current Words (Import Format)</h2>
-                        <p>All words in pipe format, ready to copy and re-import elsewhere.</p>
-                        <textarea id="importPreviewText" rows="8" readonly style="opacity:0.85;cursor:default"></textarea>
-                        <button id="copyPreviewBtn" class="btn-outline" onclick="copyImportPreview()">Copy All</button>
+                        <h2>Export / Import</h2>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+                            <button class="btn-outline" onclick="exportPipe()">Export All Words</button>
+                            <button class="btn-outline" onclick="exportJSON()">Export JSON</button>
+                            <label class="btn-outline" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                Import File
+                                <input type="file" accept=".txt,.json,.csv" onchange="importFile(event)" style="display:none">
+                            </label>
+                        </div>
+                        <p style="font-size:12px;color:var(--text-light)">Import supports .txt (pipe format), .json, or .csv files</p>
                     </div>
                 </div>
             </section>

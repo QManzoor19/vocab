@@ -454,20 +454,16 @@ function setupFlashcards() {
 
 function toggleFullscreen() {
     const page = document.getElementById('page-flashcards');
-    if (!document.fullscreenElement) {
-        (page.requestFullscreen || page.webkitRequestFullscreen || page.msRequestFullscreen).call(page);
-        page.classList.add('flashcard-fullscreen');
+    const topbar = document.getElementById('topbar');
+    page.classList.toggle('flashcard-fullscreen');
+    if (page.classList.contains('flashcard-fullscreen')) {
+        topbar.style.display = 'none';
+        document.body.style.overflow = 'hidden';
     } else {
-        (document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen).call(document);
-        page.classList.remove('flashcard-fullscreen');
+        topbar.style.display = '';
+        document.body.style.overflow = '';
     }
 }
-
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        document.getElementById('page-flashcards').classList.remove('flashcard-fullscreen');
-    }
-});
 
 function showFlashcard() {
     const card = document.getElementById('flashcard');
@@ -1722,6 +1718,65 @@ function exportPipe() {
         `${w.word} | ${w.definition} | ${w.example || ''} | ${(w.synonyms || []).join(', ')} | ${w.level}`
     );
     downloadFile('vocabmaster-words-import.txt', lines.join('\n'), 'text/plain');
+}
+
+function importFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        let added = 0;
+        let maxId = words.reduce((max, w) => Math.max(max, w.id || 0), 0);
+        const existingNames = new Set(words.map(w => w.word.toLowerCase()));
+
+        if (file.name.endsWith('.json')) {
+            try {
+                const data = JSON.parse(text);
+                const arr = Array.isArray(data) ? data : [];
+                arr.forEach(w => {
+                    if (!w.word || existingNames.has(w.word.toLowerCase())) return;
+                    maxId++;
+                    existingNames.add(w.word.toLowerCase());
+                    words.push({
+                        id: maxId, word: w.word, definition: w.definition || '',
+                        example: w.example || '', synonyms: w.synonyms || [],
+                        level: w.level || 'beginner', partOfSpeech: w.partOfSpeech || '',
+                        category: w.category || '', origin: w.origin || '',
+                        status: 'new', score: 0
+                    });
+                    added++;
+                });
+            } catch (err) { alert('Invalid JSON file'); return; }
+        } else {
+            // Pipe format or CSV
+            const lines = text.split('\n').filter(Boolean);
+            lines.forEach(line => {
+                const parts = line.split('|').map(s => s.trim());
+                if (parts.length < 2) return;
+                const [word, definition, example, synonyms, level] = parts;
+                if (!word || existingNames.has(word.toLowerCase())) return;
+                maxId++;
+                existingNames.add(word.toLowerCase());
+                words.push({
+                    id: maxId, word, definition: definition || '',
+                    example: example || '',
+                    synonyms: synonyms ? synonyms.split(',').map(s => s.trim()) : [],
+                    level: ['beginner','intermediate','advanced','expert'].includes(level) ? level : 'beginner',
+                    partOfSpeech: '', category: '', origin: '',
+                    status: 'new', score: 0
+                });
+                added++;
+            });
+        }
+
+        saveWords();
+        alert(`Imported ${added} new word(s). ${added === 0 ? 'All words already exist.' : ''}`);
+        renderWordList();
+        updateDashboard();
+    };
+    reader.readAsText(file);
+    event.target.value = '';
 }
 
 // ==================== SPACED REPETITION ====================
