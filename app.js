@@ -269,6 +269,50 @@ function bulkAddToList() {
     alert(`Added ${added} word(s) to "${list.name}"`);
 }
 
+function populateAddFilteredDropdown() {
+    const sel = document.getElementById('addFilteredToList');
+    if (!sel) return;
+    sel.innerHTML = '<option value="">Add all shown to list...</option>';
+    customLists.forEach(l => {
+        sel.innerHTML += `<option value="${l.id}">${l.name}</option>`;
+    });
+}
+
+function addFilteredWordsToList() {
+    const listId = parseInt(document.getElementById('addFilteredToList').value);
+    if (!listId) return;
+    const list = customLists.find(l => l.id === listId);
+    if (!list) return;
+
+    // Get currently filtered words using same logic as renderWordList
+    const search = document.getElementById('searchWords').value.toLowerCase();
+    const level = document.getElementById('wordlistLevel').value;
+    const status = document.getElementById('wordlistStatus').value;
+    const globalLevel = document.getElementById('globalLevelFilter').value;
+    const letter = document.getElementById('wordlistLetter').value;
+
+    const filtered = words.filter(w => {
+        if (search && !w.word.toLowerCase().includes(search) && !w.definition.toLowerCase().includes(search)) return false;
+        if (level !== 'all' && w.level !== level) return false;
+        if (status !== 'all' && w.status !== status) return false;
+        if (globalLevel !== 'all' && w.level !== globalLevel) return false;
+        if (letter !== 'all' && w.word.charAt(0).toUpperCase() !== letter) return false;
+        return true;
+    });
+
+    let added = 0;
+    filtered.forEach(w => {
+        if (!list.wordIds.includes(w.id)) {
+            list.wordIds.push(w.id);
+            added++;
+        }
+    });
+
+    saveLists();
+    document.getElementById('addFilteredToList').value = '';
+    alert(`Added ${added} word(s) to "${list.name}"`);
+}
+
 function bulkChangeLevel() {
     const level = document.getElementById('bulkLevel').value;
     if (!level) return;
@@ -311,6 +355,7 @@ function renderWordList() {
     }
 
     const container = document.getElementById('wordlistContainer');
+    populateAddFilteredDropdown();
 
     if (filtered.length === 0) {
         container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim)">No words found. Add some!</div>';
