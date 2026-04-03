@@ -269,34 +269,34 @@
                     /* Dashboard compact stats bar */
                     .dash-stats-bar {
                         display: flex;
-                        gap: 8px;
-                        padding: 10px 12px;
+                        gap: 4px;
+                        padding: 6px 8px;
                         background: var(--card-bg);
-                        border-radius: var(--radius-sm);
+                        border-radius: var(--radius-xs);
                         border: 1px solid var(--card-border);
-                        margin-bottom: 12px;
+                        margin-bottom: 8px;
                         flex-shrink: 0;
                     }
                     .dash-stat-item {
                         flex: 1;
                         text-align: center;
-                        padding: 4px 0;
+                        padding: 2px 0;
                     }
                     .dash-stat-item:not(:last-child) {
                         border-right: 1px solid var(--card-border);
                     }
                     .dash-stat-num {
-                        font-size: 22px;
-                        font-weight: 900;
+                        font-size: 16px;
+                        font-weight: 800;
                         line-height: 1.1;
-                        letter-spacing: -0.5px;
+                        letter-spacing: -0.3px;
                     }
                     .dash-stat-label {
-                        font-size: 10px;
+                        font-size: 9px;
                         color: var(--text-secondary);
                         font-weight: 600;
                         text-transform: uppercase;
-                        letter-spacing: 0.5px;
+                        letter-spacing: 0.3px;
                         margin-top: 2px;
                     }
                     .dash-stat-item:nth-child(1) .dash-stat-num { color: var(--stat-1); }
@@ -526,9 +526,9 @@
                     }
 
                     @media (max-width: 600px) {
-                        .dash-stats-bar { gap: 4px; padding: 8px; }
-                        .dash-stat-num { font-size: 18px; }
-                        .dash-stat-label { font-size: 9px; }
+                        .dash-stats-bar { gap: 2px; padding: 5px 6px; }
+                        .dash-stat-num { font-size: 14px; }
+                        .dash-stat-label { font-size: 8px; }
                         .dash-word-card { padding: 16px 10px; min-height: 65vh; }
                         .dash-word-card-inner { padding: 28px 18px; }
                         .dash-card-word { font-size: 28px; }
