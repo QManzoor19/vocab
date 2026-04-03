@@ -150,9 +150,14 @@ function getFilteredWords() {
         filtered = filtered.filter(w => w.level === globalLevel);
     }
 
-    // Practice list filter
-    if (window._practiceListIds) {
-        filtered = filtered.filter(w => window._practiceListIds.has(w.id));
+    // Exercise list filter
+    const exListEl = document.getElementById('exerciseList');
+    if (exListEl && exListEl.value !== 'all') {
+        const list = customLists.find(l => l.id === parseInt(exListEl.value));
+        if (list) {
+            const ids = new Set(list.wordIds);
+            filtered = filtered.filter(w => ids.has(w.id));
+        }
     }
 
     // Exercise page filters
@@ -476,12 +481,21 @@ function toggleDefFirst() {
 }
 
 function setupFlashcards() {
+    populateFlashcardListFilter();
     const level = document.getElementById('flashcardLevel').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
     const status = document.getElementById('flashcardStatus').value;
     const letter = document.getElementById('flashcardLetter').value;
+    const listId = document.getElementById('flashcardList').value;
+
+    let listWordIds = null;
+    if (listId !== 'all') {
+        const list = customLists.find(l => l.id === parseInt(listId));
+        if (list) listWordIds = new Set(list.wordIds);
+    }
 
     flashcardDeck = words.filter(w => {
+        if (listWordIds && !listWordIds.has(w.id)) return false;
         if (level !== 'all' && w.level !== level) return false;
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
         if (status !== 'all' && (w.status || '') !== status) return false;
@@ -495,6 +509,7 @@ function setupFlashcards() {
     document.getElementById('flashcardLevel').onchange = setupFlashcards;
     document.getElementById('flashcardStatus').onchange = setupFlashcards;
     document.getElementById('flashcardLetter').onchange = setupFlashcards;
+    document.getElementById('flashcardList').onchange = setupFlashcards;
     document.getElementById('shuffleCards').onclick = () => {
         shuffleArray(flashcardDeck);
         currentFlashcardIndex = 0;
@@ -635,8 +650,19 @@ function rateCard(rating) {
 
 // ==================== EXERCISES ====================
 
+function populateExerciseListFilter() {
+    const sel = document.getElementById('exerciseList');
+    if (!sel) return;
+    const current = sel.value;
+    sel.innerHTML = '<option value="all">All Words</option>';
+    customLists.forEach(l => {
+        sel.innerHTML += `<option value="${l.id}">${l.name} (${l.wordIds.length})</option>`;
+    });
+    sel.value = current || 'all';
+}
+
 function resetExerciseView() {
-    window._practiceListIds = null;
+    populateExerciseListFilter();
     document.querySelector('.exercise-selector').style.display = 'grid';
     document.getElementById('exerciseArea').classList.add('hidden');
 }
@@ -2146,10 +2172,6 @@ function viewList(id) {
         <div class="modal" style="max-width:500px">
             <h2>${list.name}</h2>
             <p style="color:var(--text-secondary);font-size:13px;margin-bottom:16px">${listWords.length} word${listWords.length !== 1 ? 's' : ''}</p>
-            ${listWords.length >= 4 ? `<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
-                <button class="btn-primary" style="font-size:13px;padding:8px 16px" onclick="this.closest('.modal-overlay').remove(); practiceList(${list.id})">Practice this List</button>
-                <button class="btn-outline" style="font-size:13px;padding:8px 16px" onclick="this.closest('.modal-overlay').remove(); flashcardList(${list.id})">Flashcards</button>
-            </div>` : listWords.length > 0 ? `<p style="font-size:12px;color:var(--text-light);margin-bottom:14px">Add at least 4 words to practice this list</p>` : ''}
             <div style="max-height:300px;overflow-y:auto;border:1px solid var(--card-border);border-radius:var(--radius-xs)">${wordsHtml}</div>
             <div class="modal-buttons" style="margin-top:16px">
                 <button class="btn-secondary" onclick="this.closest('.modal-overlay').remove()">Close</button>
