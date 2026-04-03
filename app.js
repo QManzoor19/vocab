@@ -135,6 +135,7 @@ function setupFilters() {
     document.getElementById('wordlistLevel').addEventListener('change', renderWordList);
     document.getElementById('wordlistStatus').addEventListener('change', renderWordList);
     document.getElementById('wordlistSort').addEventListener('change', renderWordList);
+    document.getElementById('wordlistLetter').addEventListener('change', renderWordList);
     document.getElementById('globalLevelFilter').addEventListener('change', () => {
         renderWordList();
         setupFlashcards();
@@ -237,12 +238,14 @@ function renderWordList() {
     const status = document.getElementById('wordlistStatus').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
     const sort = document.getElementById('wordlistSort').value;
+    const letter = document.getElementById('wordlistLetter').value;
 
     let filtered = words.filter(w => {
         if (search && !w.word.toLowerCase().includes(search) && !w.definition.toLowerCase().includes(search)) return false;
         if (level !== 'all' && w.level !== level) return false;
         if (status !== 'all' && w.status !== status) return false;
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
+        if (letter !== 'all' && w.word.charAt(0).toUpperCase() !== letter) return false;
         return true;
     });
 
@@ -428,15 +431,26 @@ function populateFlashcardListFilter() {
     sel.value = current || 'all';
 }
 
+let defFirstMode = false;
+
+function toggleDefFirst() {
+    defFirstMode = !defFirstMode;
+    const btn = document.getElementById('defFirstBtn');
+    if (btn) btn.classList.toggle('active', defFirstMode);
+    showFlashcard();
+}
+
 function setupFlashcards() {
     const level = document.getElementById('flashcardLevel').value;
     const globalLevel = document.getElementById('globalLevelFilter').value;
     const status = document.getElementById('flashcardStatus').value;
+    const letter = document.getElementById('flashcardLetter').value;
 
     flashcardDeck = words.filter(w => {
         if (level !== 'all' && w.level !== level) return false;
         if (globalLevel !== 'all' && w.level !== globalLevel) return false;
         if (status !== 'all' && (w.status || '') !== status) return false;
+        if (letter !== 'all' && w.word.charAt(0).toUpperCase() !== letter) return false;
         return true;
     });
 
@@ -445,6 +459,7 @@ function setupFlashcards() {
 
     document.getElementById('flashcardLevel').onchange = setupFlashcards;
     document.getElementById('flashcardStatus').onchange = setupFlashcards;
+    document.getElementById('flashcardLetter').onchange = setupFlashcards;
     document.getElementById('shuffleCards').onclick = () => {
         shuffleArray(flashcardDeck);
         currentFlashcardIndex = 0;
@@ -486,12 +501,22 @@ function showFlashcard() {
     }
 
     const w = flashcardDeck[currentFlashcardIndex];
-    document.getElementById('cardWord').textContent = w.word;
-    document.getElementById('cardLevel').textContent = w.level;
-    document.getElementById('cardLevel').className = `card-level-badge badge-${w.level}`;
-    document.getElementById('cardDefinition').textContent = w.definition;
-    document.getElementById('cardExample').textContent = w.example ? `"${w.example.replace('_', '___')}"` : '';
-    document.getElementById('cardSynonym').textContent = w.synonyms && w.synonyms.length ? `Synonyms: ${w.synonyms.join(', ')}` : '';
+    if (defFirstMode) {
+        // Front shows definition, back shows word
+        document.getElementById('cardWord').textContent = w.definition;
+        document.getElementById('cardLevel').textContent = w.level;
+        document.getElementById('cardLevel').className = `card-level-badge badge-${w.level}`;
+        document.getElementById('cardDefinition').textContent = w.word;
+        document.getElementById('cardExample').textContent = w.example ? `"${w.example.replace('_', '___')}"` : '';
+        document.getElementById('cardSynonym').textContent = w.synonyms && w.synonyms.length ? `Synonyms: ${w.synonyms.join(', ')}` : '';
+    } else {
+        document.getElementById('cardWord').textContent = w.word;
+        document.getElementById('cardLevel').textContent = w.level;
+        document.getElementById('cardLevel').className = `card-level-badge badge-${w.level}`;
+        document.getElementById('cardDefinition').textContent = w.definition;
+        document.getElementById('cardExample').textContent = w.example ? `"${w.example.replace('_', '___')}"` : '';
+        document.getElementById('cardSynonym').textContent = w.synonyms && w.synonyms.length ? `Synonyms: ${w.synonyms.join(', ')}` : '';
+    }
     document.getElementById('cardCounter').textContent = `${currentFlashcardIndex + 1} / ${flashcardDeck.length}`;
     renderDeckList();
 }

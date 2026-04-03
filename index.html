@@ -724,6 +724,10 @@
                             <option value="score">Sort: Score</option>
                             <option value="default">Sort: Added</option>
                         </select>
+                        <select id="wordlistLetter">
+                            <option value="all">All Letters</option>
+                            <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option><option value="T">T</option><option value="U">U</option><option value="V">V</option><option value="W">W</option><option value="X">X</option><option value="Y">Y</option><option value="Z">Z</option>
+                        </select>
                     </div>
                     <div id="selectBar" class="select-bar hidden">
                         <span id="selectCount">0 selected</span>
@@ -761,6 +765,13 @@
                         <option value="learning">Learning</option>
                         <option value="mastered">Mastered</option>
                     </select>
+                    <select id="flashcardLetter">
+                        <option value="all">All Letters</option>
+                        <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option><option value="T">T</option><option value="U">U</option><option value="V">V</option><option value="W">W</option><option value="X">X</option><option value="Y">Y</option><option value="Z">Z</option>
+                    </select>
+                    <button id="defFirstBtn" class="btn-outline" onclick="toggleDefFirst()">
+                        Definition First
+                    </button>
                     <button id="shuffleCards" class="btn-outline">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
                         Shuffle
@@ -850,7 +861,11 @@
                         }
                     }
                 </style>
-                <div class="exercise-filters" style="display:none">
+                <div class="exercise-filters">
+                    <select id="exerciseLetter">
+                        <option value="all">All Letters</option>
+                        <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option><option value="M">M</option><option value="N">N</option><option value="O">O</option><option value="P">P</option><option value="Q">Q</option><option value="R">R</option><option value="S">S</option><option value="T">T</option><option value="U">U</option><option value="V">V</option><option value="W">W</option><option value="X">X</option><option value="Y">Y</option><option value="Z">Z</option>
+                    </select>
                 </div>
                 <div class="exercise-selector">
                     <div class="exercise-type-card" onclick="startExercise('multiple-choice')">
